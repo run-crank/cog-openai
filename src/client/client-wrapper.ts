@@ -1,7 +1,7 @@
 import * as grpc from 'grpc';
 import { Field } from '../core/base-step';
 import { FieldDefinition } from '../proto/cog_pb';
-import { UserAwareMixin } from './mixins';
+import { CompletionAwareMixin } from './mixins';
 import openai from 'openai';
 
 /**
@@ -30,7 +30,9 @@ class ClientWrapper {
    * Private instance of the wrapped API client. You will almost certainly want
    * to swap this out for an API client specific to your Cog's needs.
    */
-  public client: any;
+  auth: grpc.Metadata;
+  client: openai;
+  clientReady: Promise<boolean>;
 
   /**
    * Constructs an instance of the ClientWwrapper, authenticating the wrapped
@@ -44,19 +46,20 @@ class ClientWrapper {
    *   simplify automated testing. Should default to the class/constructor of
    *   the underlying/wrapped API client.
    */
-  constructor (auth: grpc.Metadata, clientConstructor = openai) {
+  constructor (auth: grpc.Metadata, clientConstructor = openai.OpenAI) {
     // Call auth.get() for any field defined in the static expectedAuthFields
     // array here. The argument passed to get() should match the "field" prop
     // declared on the definition object above.
-    const uaString: string = auth.get('userAgent').toString();
+    this.auth = auth;
     this.client = new clientConstructor({
-      apiKey: auth.get('apiKey').toString(),
+      apiKey: this.auth.get('apiKey').toString(),  // defaults to process.env["OPENAI_API_KEY"]
     });
+    this.clientReady = Promise.resolve(true);
   }
 }
 
-interface ClientWrapper extends UserAwareMixin {}
-applyMixins(ClientWrapper, [UserAwareMixin]);
+interface ClientWrapper extends CompletionAwareMixin {}
+applyMixins(ClientWrapper, [CompletionAwareMixin]);
 
 function applyMixins(derivedCtor: any, baseCtors: any[]) {
   baseCtors.forEach((baseCtor) => {

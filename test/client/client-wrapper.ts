@@ -7,37 +7,63 @@ import { ClientWrapper } from '../../src/client/client-wrapper';
 import { Metadata } from 'grpc';
 
 chai.use(sinonChai);
+chai.use(require('chai-as-promised'));
 
 describe('ClientWrapper', () => {
   const expect = chai.expect;
-  let needleConstructorStub: any;
   let metadata: Metadata;
   let clientWrapperUnderTest: ClientWrapper;
+  let openAiClientStub: any;
+  let openAiConstructorStub: any;
 
   beforeEach(() => {
-    needleConstructorStub = sinon.stub();
-    needleConstructorStub.defaults = sinon.stub();
+    openAiClientStub = {
+      apiKey: sinon.spy(),
+    };
+    openAiConstructorStub = sinon.stub();
+    openAiConstructorStub.returns(openAiClientStub);
   });
 
-  it('authenticates', () => {
+  it('authenticates with api key', () => {
     // Construct grpc metadata and assert the client was authenticated.
-    const expectedCallArgs = { user_agent: 'Some/UserAgent String' };
+    const expectedCallArgs = { apiKey: 'Some API key' };
     metadata = new Metadata();
-    metadata.add('userAgent', expectedCallArgs.user_agent);
+    metadata.add('apiKey', expectedCallArgs.apiKey);
 
     // Assert that the underlying API client was authenticated correctly.
-    clientWrapperUnderTest = new ClientWrapper(metadata, needleConstructorStub);
-    expect(needleConstructorStub.defaults).to.have.been.calledWith(expectedCallArgs);
+    clientWrapperUnderTest = new ClientWrapper(metadata, openAiConstructorStub);
+    expect(openAiConstructorStub).to.have.been.calledWith(expectedCallArgs);
+    expect(clientWrapperUnderTest.clientReady).to.eventually.equal(true);
   });
 
-  it('getUserByEmail', () => {
-    const expectedEmail = 'test@example.com';
-    clientWrapperUnderTest = new ClientWrapper(metadata, needleConstructorStub);
-    clientWrapperUnderTest.getUserByEmail(expectedEmail);
+  describe('CompletionAware', () => {
+    beforeEach(() => {
+      openAiClientStub = {
+        chat: {
+          completions: {
+            create: sinon.stub(),
+          },
+        },
+      };
+      openAiClientStub.chat.completions.create.returns(Promise.resolve());
+      openAiClientStub.chat.completions.create.then = sinon.stub();
+      openAiClientStub.chat.completions.create.then.resolves();
+      openAiConstructorStub.returns(openAiClientStub);
+    });
 
-    expect(needleConstructorStub).to.have.been.calledWith(
-      `https://jsonplaceholder.typicode.com/users?email=${expectedEmail}`,
-    );
+    it('getChatCompletion', async () => {
+      clientWrapperUnderTest = new ClientWrapper(metadata, openAiConstructorStub);
+      const sampleModel = 'gpt-3.5-turbo';
+      const sampleMessages = [{ 'role': 'user', 'content': 'What\'s the weather like in Boston?' }];
+      openAiClientStub.chat.completions.create.resolves({
+        choices: [
+          {
+            message: 'Some message',
+          },
+        ],
+      });
+      await clientWrapperUnderTest.getChatCompletion(sampleModel, sampleMessages);
+      expect(openAiClientStub.chat.completions.create).to.have.been.calledWith({ model: sampleModel, messages: sampleMessages });
+    });
   });
-
 });

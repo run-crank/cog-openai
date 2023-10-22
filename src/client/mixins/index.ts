@@ -1,1 +1,1 @@
-export * from './user-aware';
+export * from './completion-aware';
