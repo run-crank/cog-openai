@@ -1,8 +1,8 @@
 import * as grpc from 'grpc';
-import * as needle from 'needle';
 import { Field } from '../core/base-step';
 import { FieldDefinition } from '../proto/cog_pb';
 import { UserAwareMixin } from './mixins';
+import openai from 'openai';
 
 /**
  * This is a wrapper class around the API client for your Cog. An instance of
@@ -20,10 +20,10 @@ class ClientWrapper {
    * If your Cog does not require authentication, set this to an empty array.
    */
   public static expectedAuthFields: Field[] = [{
-    field: 'userAgent',
+    field: 'apiKey',
     type: FieldDefinition.Type.STRING,
-    description: 'User Agent String',
-    help: 'This is for demonstration purposes only. In an actual Cog, you would use this field to describe how to find this auth field in the underlying system.',
+    description: 'OpenAI API Key',
+    help: 'OpenAI API Key',
   }];
 
   /**
@@ -44,17 +44,15 @@ class ClientWrapper {
    *   simplify automated testing. Should default to the class/constructor of
    *   the underlying/wrapped API client.
    */
-  constructor (auth: grpc.Metadata, clientConstructor = needle) {
+  constructor (auth: grpc.Metadata, clientConstructor = openai) {
     // Call auth.get() for any field defined in the static expectedAuthFields
     // array here. The argument passed to get() should match the "field" prop
     // declared on the definition object above.
     const uaString: string = auth.get('userAgent').toString();
-    this.client = clientConstructor;
-
-    // Authenticate the underlying client here.
-    this.client.defaults({ user_agent: uaString });
+    this.client = new clientConstructor({
+      apiKey: auth.get('apiKey').toString(),
+    });
   }
-
 }
 
 interface ClientWrapper extends UserAwareMixin {}
