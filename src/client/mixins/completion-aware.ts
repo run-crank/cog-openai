@@ -15,9 +15,12 @@ export class CompletionAwareMixin {
         requestObject['functions'] = functions;
       }
       const response = await this.client.chat.completions.create(requestObject);
-      return response.choices[0].message;
+      if (!response && !response.choices && !response.choices[0] && !response.choices[0].message) {
+        throw new Error(`Error response from OpenAI API: ${JSON.stringify(response)}`);
+      }
+      return response;
     } catch (error) {
-      throw new Error(error.message);
+      throw new Error(`Error response from OpenAI API: ${error.message}`);
     }
   }
 }
