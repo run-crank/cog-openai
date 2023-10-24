@@ -39,7 +39,7 @@ describe('Cog:GetManifest', () => {
       });
 
       // Useragent auth field
-      const ua: any = authFields.filter(a => a.key === 'userAgent')[0];
+      const ua: any = authFields.filter(a => a.key === 'apiKey')[0];
       expect(ua.type).to.equal(FieldDefinition.Type.STRING);
       expect(ua.optionality).to.equal(FieldDefinition.Optionality.REQUIRED);
       expect(!!ua.help).to.equal(true);
@@ -52,9 +52,9 @@ describe('Cog:GetManifest', () => {
     cogUnderTest.getManifest(null, (err, manifest: CogManifest) => {
       const stepDefs: StepDefinition[] = manifest.getStepDefinitionsList();
 
-      // Step definitions list includes user-field-equals step.
-      const hasUserFieldEquals: boolean = stepDefs.filter(s => s.getStepId() === 'UserFieldEqualsStep').length === 1;
-      expect(hasUserFieldEquals).to.equal(true);
+      // Test for the presence of step definitions in your manifest like this:
+      // const someStepExists: boolean = stepDefs.filter(s => s.getStepId() === 'SomeStepClass').length === 1;
+      // expect(someStepExists).to.equal(true);
 
       done();
     });

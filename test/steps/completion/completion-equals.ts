@@ -47,7 +47,7 @@ describe('CompletionEquals', () => {
 
       expect(fields[3].key).to.equal('expectation');
       expect(fields[3].optionality).to.equal(FieldDefinition.Optionality.OPTIONAL);
-      expect(fields[3].type).to.equal(FieldDefinition.Type.ANYSCALAR);
+      expect(fields[3].type).to.equal(FieldDefinition.Type.STRING);
     });
   });
 
