@@ -92,7 +92,6 @@ export class CompletionEquals extends BaseStep implements StepInterface {
   }
 
   public createRecords(completion, stepOrder = 1): StepRecord[] {
-    const obj = {};
     const records = [];
     // Base Record
     records.push(this.keyValue('completion', 'Checked Chat Completion', completion));

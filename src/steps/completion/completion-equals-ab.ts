@@ -4,6 +4,7 @@ import { BaseStep, Field, StepInterface, ExpectedRecord } from '../../core/base-
 import { Step, FieldDefinition, StepDefinition, RecordDefinition, StepRecord } from '../../proto/cog_pb';
 import * as util from '@run-crank/utilities';
 import { baseOperators } from '../../client/constants/operators';
+import * as _ from 'lodash';
 
 export class CompletionEqualsAb extends BaseStep implements StepInterface {
 
@@ -79,13 +80,13 @@ export class CompletionEqualsAb extends BaseStep implements StepInterface {
       message['role'] = 'user';
       message['content'] = prompt;
       messages.push(message);
-      const completiona = await this.client.getChatCompletion(modela, messages);
+      const completiona = _.cloneDeep(await this.client.getChatCompletion(modela, messages));
       const actuala = completiona.choices[0].message.content;
-      const resulta = this.assert(operator, actuala, expectation, 'response');
-      const completionb = await this.client.getChatCompletion(modelb, messages);
+      const resulta = this.assert(operator, actuala, expectation, 'responsea');
+      const completionb = _.cloneDeep(await this.client.getChatCompletion(modelb, messages));
       const actualb = completionb.choices[0].message.content;
-      const resultb = this.assert(operator, actualb, expectation, 'response');
-      const result = resulta && resultb;
+      const resultb = this.assert(operator, actualb, expectation, 'responseb');
+      const result = resulta.valid && resultb.valid;
 
       const passedModels = [];
       const failedModels = [];

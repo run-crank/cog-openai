@@ -65,7 +65,6 @@ describe('CompletionEquals', () => {
 
         clientWrapperStub.getChatCompletion.returns(Promise.resolve({
           choices: [{ text: 'expected response' }],
-          // ... other mock response fields
         }));
       });
 
@@ -88,7 +87,6 @@ describe('CompletionEquals', () => {
 
         clientWrapperStub.getChatCompletion.returns(Promise.resolve({
           choices: [{ text: 'not expected response' }],
-          // ... other mock response fields
         }));
       });
 
