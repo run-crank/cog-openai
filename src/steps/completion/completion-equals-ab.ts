@@ -104,8 +104,8 @@ export class CompletionEqualsAb extends BaseStep implements StepInterface {
       }
 
       const records = [];
-      records.push(this.createTable('passedModels', 'Models Passed', passedModels));
-      records.push(this.createTable('failedModels', 'Models Failed', failedModels));
+      records.push(this.createTable('passedModels', `Models Passed Prompt '${prompt}'`, passedModels));
+      records.push(this.createTable('failedModels', `Models Failed Prompt '${prompt}'`, failedModels));
 
       return result ? this.pass('%d model passed the test', [passedModels.length], records)
         : this.fail('%d models failed the test and %d models passed the test', [failedModels.length, passedModels.length], records);
