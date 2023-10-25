@@ -64,7 +64,7 @@ describe('CompletionEquals', () => {
         }));
 
         clientWrapperStub.getChatCompletion.returns(Promise.resolve({
-          choices: [{ text: 'expected response' }],
+          choices: [{ message: { content: 'expected response' } }],
         }));
       });
 
@@ -86,7 +86,7 @@ describe('CompletionEquals', () => {
         }));
 
         clientWrapperStub.getChatCompletion.returns(Promise.resolve({
-          choices: [{ text: 'not expected response' }],
+          choices: [{ message: { content: 'unexpected response' } }],
         }));
       });
 
