@@ -74,23 +74,22 @@ export class CompletionReadability extends BaseStep implements StepInterface {
   }];
 
   fleschScoreToSchoolLevel(score) {
-    switch (score) {
-      case score >= 90:
-        return { score, schoollevel: '5th grade', notes: 'Very easy to read. Easily understood by an average 11-year-old student.' };
-      case score >= 80:
-        return { score, schoollevel: '6th grade', notes: 'Easy to read. Conversational English for consumers.' };
-      case score >= 70:
-        return { score, schoollevel: '7th grade', notes: 'Fairly easy to read.' };
-      case score >= 60:
-        return { score, schoollevel: '8th & 9th grade', notes: 'Plain English. Easily understood by 13- to 15-year-old students.' };
-      case score >= 50:
-        return { score, schoollevel: '10th to 12th grade', notes: 'Fairly difficult to read.' };
-      case score >= 30:
-        return { score, schoollevel: 'College', notes: 'Difficult to read.' };
-      case score >= 10:
-        return { score, schoollevel: 'College Graduate', notes: 'Very difficult to read. Best understood by university graduates.' };
-      default:
-        return { score, schoollevel: 'Professional', notes: 'Extremely difficult to read. Best understood by university graduates.' };
+    if (score >= 90) {
+      return { score, schoollevel: '5th grade', notes: 'Very easy to read. Easily understood by an average 11-year-old student.' };
+    } else if (score >= 80) {
+      return { score, schoollevel: '6th grade', notes: 'Easy to read. Conversational English for consumers.' };
+    } else if (score >= 70) {
+      return { score, schoollevel: '7th grade', notes: 'Fairly easy to read.' };
+    } else if (score >= 60) {
+      return { score, schoollevel: '8th & 9th grade', notes: 'Plain English. Easily understood by 13- to 15-year-old students.' };
+    } else if (score >= 50) {
+      return { score, schoollevel: '10th to 12th grade', notes: 'Fairly difficult to read.' };
+    } else if (score >= 30) {
+      return { score, schoollevel: 'College', notes: 'Difficult to read.' };
+    } else if (score >= 10) {
+      return { score, schoollevel: 'College Graduate', notes: 'Very difficult to read. Best understood by university graduates.' };
+    } else {
+      return { score, schoollevel: 'Professional', notes: 'Extremely difficult to read. Best understood by university graduates.' };
     }
   }
 
@@ -125,7 +124,7 @@ export class CompletionReadability extends BaseStep implements StepInterface {
 
   async executeStep(step: Step) {
     const stepData: any = step.getData() ? step.getData().toJavaScript() : {};
-    const expectation = stepData.expectation;
+    const expectedSchoolLevel = stepData.schoollevel;
     const prompt = stepData.prompt;
     const model = stepData.model;
     const operator = stepData.operator || 'be';
@@ -139,9 +138,11 @@ export class CompletionReadability extends BaseStep implements StepInterface {
       const completion = await this.client.getChatCompletion(model, messages);
       const response = completion.choices[0].message.content;
       const fleschReadingEaseScore = this.getFleschReadingEaseScore(response);
+      console.log('Flesch Reading Ease Score: ', fleschReadingEaseScore);
       const fleschReadingEaseScoreObj = this.fleschScoreToSchoolLevel(fleschReadingEaseScore);
+      console.log('Flesch Reading Ease Score Object: ', fleschReadingEaseScoreObj);
       const actual = fleschReadingEaseScoreObj.schoollevel;
-      const result = this.assert(operator, actual, expectation, 'response');
+      const result = this.assert(operator, actual, expectedSchoolLevel, 'response');
 
       const returnObj = {
         model,
@@ -150,8 +151,8 @@ export class CompletionReadability extends BaseStep implements StepInterface {
         score: fleschReadingEaseScore,
         schoollevel: fleschReadingEaseScoreObj.schoollevel,
         notes: fleschReadingEaseScoreObj.notes,
-        usage: completion.choices[0].finish_reason,
-        created: completion.choices[0].created,
+        usage: completion.usage,
+        created: completion.created,
       };
       const records = this.createRecords(returnObj, stepData['__stepOrder']);
       return result.valid ? this.pass(result.message, [], records) : this.fail(result.message, [], records);
