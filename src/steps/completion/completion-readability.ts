@@ -9,7 +9,7 @@ export class CompletionReadability extends BaseStep implements StepInterface {
 
   protected stepName: string = 'Check OpenAI GPT prompt response FRES reading ease evaluation';
   // tslint:disable-next-line:max-line-length
-  protected stepExpression: string = 'OpenAI model (?<model>[a-zA-Z0-9_-]+) school level of the response to (?<prompt>[a-zA-Z0-9_-]+) should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) ?(?<schoollevel>.+)?';
+  protected stepExpression: string = 'OpenAI model (?<model>[a-zA-Z0-9_-]+) school level of the response to (?<prompt>[a-zA-Z0-9_-]+) should (?<operator>be less than|be greater than|be one of|be|not be one of|not be) ?(?<schoollevel>.+)?';
   protected stepType: StepDefinition.Type = StepDefinition.Type.VALIDATION;
   protected actionList: string[] = ['check'];
   protected targetObject: string = 'completion';
@@ -25,7 +25,7 @@ export class CompletionReadability extends BaseStep implements StepInterface {
     field: 'operator',
     type: FieldDefinition.Type.STRING,
     optionality: FieldDefinition.Optionality.OPTIONAL,
-    description: 'Check Logic (be, not be, contain, not contain, be greater than, be less than, be set, not be set, be one of, or not be one of)',
+    description: 'Check Logic (be less than|be greater than|be one of|be|not be one of|not be)',
   },
   {
     field: 'schoollevel',
@@ -141,8 +141,9 @@ export class CompletionReadability extends BaseStep implements StepInterface {
       console.log('Flesch Reading Ease Score: ', fleschReadingEaseScore);
       const fleschReadingEaseScoreObj = this.fleschScoreToSchoolLevel(fleschReadingEaseScore);
       console.log('Flesch Reading Ease Score Object: ', fleschReadingEaseScoreObj);
-      const actual = fleschReadingEaseScoreObj.schoollevel;
-      const result = this.assert(operator, actual, expectedSchoolLevel, 'response');
+      const expectedScore = this.fleschSchoolLevelToScore(expectedSchoolLevel);
+      const actualScore = fleschReadingEaseScoreObj.score;
+      const result = this.assert(operator, actualScore.toString(), expectedScore.toString(), 'response');
 
       const returnObj = {
         model,
