@@ -5,6 +5,7 @@ import { Step, FieldDefinition, StepDefinition, RecordDefinition, StepRecord } f
 import * as util from '@run-crank/utilities';
 import { baseOperators } from '../../client/constants/operators';
 import * as similarity from 'similarity';
+import * as stringSimilarity from 'string-similarity';
 
 export class CompletionSemanticSimilarity extends BaseStep implements StepInterface {
 
@@ -55,9 +56,13 @@ export class CompletionSemanticSimilarity extends BaseStep implements StepInterf
       type: FieldDefinition.Type.STRING,
       description: 'Completion Model Response',
     }, {
-      field: 'semanticsimilarity',
+      field: 'levensteinDistance',
       type: FieldDefinition.Type.NUMERIC,
-      description: 'Actual Semantic Similarity Score',
+      description: 'Levenstein Distance Score',
+    }, {
+      field: 'diceCoefficient',
+      type: FieldDefinition.Type.NUMERIC,
+      description: 'Dice Coefficient Score',
     }, {
       field: 'usage',
       type: FieldDefinition.Type.STRING,
@@ -91,16 +96,18 @@ export class CompletionSemanticSimilarity extends BaseStep implements StepInterf
       const completion = await this.client.getChatCompletion(model, messages);
       const response = completion.choices[0].message.content;
       const levensteinDistance = this.levensteinDistance(response, compareText);
+      const diceCoefficient = stringSimilarity.compareTwoStrings(response, compareText);
       const result = this.assert(operator, levensteinDistance.toString(), expectedSimilarity.toString(), 'response');
       const returnObj = {
         model,
         prompt,
         response,
-        semanticsimilarity: levensteinDistance,
+        levensteinDistance,
+        diceCoefficient,
         usage: completion.usage,
         created: completion.created,
       };
-      const records = this.createRecords(completion, stepData['__stepOrder']);
+      const records = this.createRecords(returnObj, stepData['__stepOrder']);
       return result.valid ? this.pass(result.message, [], records) : this.fail(result.message, [], records);
     } catch (e) {
       if (e instanceof util.UnknownOperatorError) {
