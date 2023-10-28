@@ -4,6 +4,7 @@ import { BaseStep, Field, StepInterface, ExpectedRecord } from '../../core/base-
 import { Step, FieldDefinition, StepDefinition, RecordDefinition, StepRecord } from '../../proto/cog_pb';
 import * as util from '@run-crank/utilities';
 import { baseOperators } from '../../client/constants/operators';
+import * as similarity from 'similarity';
 
 export class CompletionSemanticSimilarity extends BaseStep implements StepInterface {
 
@@ -28,15 +29,15 @@ export class CompletionSemanticSimilarity extends BaseStep implements StepInterf
     description: 'Check Logic (be, not be, contain, not contain, be greater than, be less than, be set, not be set, be one of, or not be one of)',
   },
   {
-    field: 'comparetext',
-    type: FieldDefinition.Type.STRING,
-    description: 'Expected text to compare to GPT response',
-    optionality: FieldDefinition.Optionality.OPTIONAL,
-  },
-  {
     field: 'semanticsimilarity',
     type: FieldDefinition.Type.NUMERIC,
     description: 'Semantic Similarity Score',
+    optionality: FieldDefinition.Optionality.OPTIONAL,
+  },
+  {
+    field: 'comparetext',
+    type: FieldDefinition.Type.STRING,
+    description: 'Expected text to compare to GPT response',
     optionality: FieldDefinition.Optionality.OPTIONAL,
   }];
 
@@ -71,6 +72,10 @@ export class CompletionSemanticSimilarity extends BaseStep implements StepInterf
     dynamicFields: true,
   }];
 
+  levensteinDistance(s1: string, s2: string): number {
+    return similarity(s1, s2);
+  }
+
   async executeStep(step: Step) {
     const stepData: any = step.getData() ? step.getData().toJavaScript() : {};
     const compareText = stepData.comparetext;
@@ -87,13 +92,13 @@ export class CompletionSemanticSimilarity extends BaseStep implements StepInterf
       messages.push(message);
       const completion = await this.client.getChatCompletion(model, messages);
       const response = completion.choices[0].message.content;
-      const actual = this.client.getSemanticScore(response);
-      const result = this.assert(operator, actual, expectedSimilarity, 'response');
+      const levensteinDistance = this.levensteinDistance(response, compareText);
+      const result = this.assert(operator, levensteinDistance.toString(), expectedSimilarity.toString(), 'response');
       const returnObj = {
         model,
         prompt,
         response,
-        semanticsimilarity: actual,
+        semanticsimilarity: levensteinDistance,
         usage: completion.usage,
         created: completion.created,
       };
