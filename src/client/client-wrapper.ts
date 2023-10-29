@@ -1,7 +1,10 @@
 import * as grpc from 'grpc';
 import { Field } from '../core/base-step';
 import { FieldDefinition } from '../proto/cog_pb';
-import { CompletionAwareMixin } from './mixins';
+import {
+  CompletionAwareMixin,
+  EmbeddingsAwareMixin,
+} from './mixins';
 import openai from 'openai';
 
 /**
@@ -58,8 +61,13 @@ class ClientWrapper {
   }
 }
 
-interface ClientWrapper extends CompletionAwareMixin {}
-applyMixins(ClientWrapper, [CompletionAwareMixin]);
+interface ClientWrapper extends
+  CompletionAwareMixin,
+  EmbeddingsAwareMixin {}
+applyMixins(ClientWrapper, [
+  CompletionAwareMixin,
+  EmbeddingsAwareMixin,
+]);
 
 function applyMixins(derivedCtor: any, baseCtors: any[]) {
   baseCtors.forEach((baseCtor) => {
