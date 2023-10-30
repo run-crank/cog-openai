@@ -66,4 +66,51 @@ describe('ClientWrapper', () => {
       expect(openAiClientStub.chat.completions.create).to.have.been.calledWith({ model: sampleModel, messages: sampleMessages });
     });
   });
+
+  describe('EmbeddingsAware', () => {
+    beforeEach(() => {
+      openAiClientStub = {
+        embeddings: {
+          create: sinon.stub(),
+        },
+      };
+      openAiClientStub.embeddings.create.returns(Promise.resolve());
+      openAiClientStub.embeddings.create.then = sinon.stub();
+      openAiClientStub.embeddings.create.then.resolves();
+      openAiConstructorStub.returns(openAiClientStub);
+    });
+
+    it('getEmbeddings', async () => {
+      clientWrapperUnderTest = new ClientWrapper(metadata, openAiConstructorStub);
+      const sampleModel = 'text-embedding-ada-002'; // or any other embedding model
+      const sampleInput = 'How do I bake a cake?';
+
+      // Mocking the response of the 'create' method
+      openAiClientStub.embeddings.create.resolves({
+        data: [
+          {
+            embedding: [
+              0.12345,
+              0.54321,
+              0.98765,
+            ],
+            index: 0,
+            object: 'embedding',
+          },
+        ],
+        model: 'text-embedding-ada-002',
+        object: 'list',
+        usage: {
+          prompt_tokens: 4,
+          total_tokens: 4,
+        },
+      });
+
+      await clientWrapperUnderTest.getEmbeddings(sampleModel, sampleInput);
+      expect(openAiClientStub.embeddings.create).to.have.been.calledWith({
+        model: sampleModel,
+        input: sampleInput,
+      });
+    });
+  });
 });
