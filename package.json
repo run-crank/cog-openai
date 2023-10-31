@@ -59,6 +59,7 @@
   "dependencies": {
     "@run-crank/utilities": "^0.4.1",
     "chai-as-promised": "^7.1.1",
+    "compute-cosine-similarity": "^1.1.0",
     "google-protobuf": "^3.8.0",
     "grpc": "^1.24.3",
     "lodash": "^4.17.21",
