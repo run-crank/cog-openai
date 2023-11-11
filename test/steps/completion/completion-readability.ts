@@ -23,7 +23,7 @@ describe('CompletionReadability', () => {
       const stepDef: StepDefinition = stepUnderTest.getDefinition();
       expect(stepDef.getStepId()).to.equal('CompletionReadability');
       expect(stepDef.getName()).to.equal('Check OpenAI GPT prompt response FRES reading ease evaluation');
-      expect(stepDef.getExpression()).to.equal('OpenAI model (?<model>[a-zA-Z0-9_-]+) school level of the response to (?<prompt>[a-zA-Z0-9_-]+) should (?<operator>be less than|be greater than|be one of|be|not be one of|not be) ?(?<schoollevel>.+)?');
+      expect(stepDef.getExpression()).to.equal('OpenAI model (?<model>[a-zA-Z0-9_-]+) school level of the response to "(?<prompt>[a-zA-Z0-9_ -]+)" should (?<operator>be less than|be greater than|be one of|be|not be one of|not be) ?(?<schoollevel>.+)?');
       expect(stepDef.getType()).to.equal(StepDefinition.Type.VALIDATION);
     });
 

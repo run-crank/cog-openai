@@ -16,7 +16,7 @@ steps:
     operator: '{{test.operator}}'
     schoollevel: '{{test.schoollevel}}'
     model: '{{test.modela}}'
-- step: OpenAI model {{test.modelb}} school level of the response to {{test.prompt}} should {{test.operator}} {{test.schoollevel}}
+- step: OpenAI model {{test.modelb}} school level of the response to "{{test.prompt}}" should {{test.operator}} {{test.schoollevel}}
   data:
     prompt: '{{test.prompt}}'
     operator: '{{test.operator}}'
