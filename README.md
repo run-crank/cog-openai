@@ -29,7 +29,7 @@ You will be asked for the following authentication details on installation. To a
 
 | Field | Install-Time Environment Variable | Description |
 | --- | --- | --- |
-| **userAgent** | `CRANK_STACKMOXIE_OPENAI__USERAGENT` | User Agent String |
+| **apiKey** | `CRANK_STACKMOXIE_OPENAI__APIKEY` | OpenAI API Key |
 
 ```shell-session
 # Re-authenticate by running this
@@ -45,7 +45,19 @@ Scenario files.
 <!-- stepDetails -->
 | Name (ID) | Expression | Expected Data |
 | --- | --- | --- |
-| **Check a field on a JSON Placeholder user**<br>(`UserFieldEqualsStep`) | `the (?<field>.+) field on JSON Placeholder user (?<email>.+) should (?<operator>be set\|not be set\|be less than\|be greater than\|be one of\|be\|contain\|not be one of\|not be\|not contain) ?(?<expectation>.+)?` | - `email`: User's email address <br><br>- `field`: Field name to check <br><br>- `operator`: Check Logic (be, not be, contain, not contain, be greater than, be less than, be set, not be set, be one of, or not be one of) <br><br>- `expectedValue`: Expected field value |
+| **Compare OpenAI GPT model A and B prompt responses from completion**<br>(`CompletionEqualsAb`) | `OpenAI model (?<modela>[a-zA-Z0-9_-]+) and (?<modelb>[a-zA-Z0-9_-]+) responses to "(?<prompt>[a-zA-Z0-9_ -]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) ?(?<expectation>.+)?` | - `prompt`: User Prompt to send to GPT Model <br><br>- `modela`: GPT Model A to use for completion <br><br>- `modelb`: GPT Model A to use for completion <br><br>- `operator`: Check Logic (be, not be, contain, not contain, be greater than, be less than, be set, not be set, be one of, or not be one of) <br><br>- `expectation`: Expected GPT model response value |
+| --- | --- | --- |
+| **Check OpenAI GPT prompt response from completion**<br>(`CompletionEquals`) | `OpenAI model (?<model>[a-zA-Z0-9_-]+) response to "(?<prompt>[a-zA-Z0-9_ -]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) ?(?<expectation>.+)?` | - `prompt`: User Prompt to send to GPT Model <br><br>- `model`: GPT Model to use for completion <br><br>- `operator`: Check Logic (be, not be, contain, not contain, be greater than, be less than, be set, not be set, be one of, or not be one of) <br><br>- `expectation`: Expected GPT model response value |
+| --- | --- | --- |
+| **Check OpenAI GPT prompt response FRES reading ease evaluation**<br>(`CompletionReadability`) | `OpenAI model (?<model>[a-zA-Z0-9_-]+) school level of the response to "(?<prompt>[a-zA-Z0-9_ -]+)" should (?<operator>be less than|be greater than|be one of|be|not be one of|not be) ?(?<schoollevel>.+)?` | - `prompt`: User Prompt to send to GPT Model <br><br>- `model`: GPT Model to use for completion <br><br>- `operator`: Check Logic (be, not be, contain, not contain, be greater than, be less than, be set, not be set, be one of, or not be one of) <br><br>- `schoollevel`: Expected School Level (5th grade, 6th grade, 7th grade, 8th & 9th grade, 10th to 12th grade, College, College Graduate, Professional) |
+| --- | --- | --- |
+| **Check OpenAI GPT semantic similarity of response to provided text from completion**<br>(`CompletionSemanticSimilarity`) | `OpenAI model (?<model>[a-zA-Z0-9_-]+) response to "(?<prompt>[a-zA-Z0-9_ -]+)" semantically compared with "(?<comparetext>[a-zA-Z0-9_ -]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) ?(?<semanticsimilarity>.+)?` | - `prompt`: User Prompt to send to GPT Model <br><br>- `model`: GPT Model to use for completion <br><br>- `operator`: Check Logic (be, not be, contain, not contain, be greater than, be less than, be set, not be set, be one of, or not be one of) <br><br>- `semanticsimilarity`: Expected Semantic Similarity Score (Levenstein Distance 0-1) | `comparetext`: Expected text to compare to GPT response |
+| --- | --- | --- |
+| **Check OpenAI GPT prompt response word count from completion**<br>(`CompletionWordCount`) | `OpenAI model (?<model>[a-zA-Z0-9_-]+) word count in a response to "(?<prompt>[a-zA-Z0-9_ -]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) ?(?<expectation>.+)?` | - `prompt`: User Prompt to send to GPT Model <br><br>- `model`: GPT Model to use for completion <br><br>- `operator`: Check Logic (be, not be, contain, not contain, be greater than, be less than, be set, not be set, be one of, or not be one of) <br><br>- `expectation`: Expected GPT word count |
+| --- | --- | --- |
+| **Check OpenAI GPT cosine similarity of two texts based on embeddings**<br>(`EmbeddingsCosineSimilarity`) | `OpenAI model (?<model>[a-zA-Z0-9_-]+) cosine similarity of "(?<text1>[a-zA-Z0-9_ -]+)" and "(?<text2>[a-zA-Z0-9_ -]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) ?(?<semanticsimilarity>.+)?` | - `text1`: First text to compare <br><br>- `text2`: Second text to compare <br><br>- `model`: GPT Embeddings Model to use <br><br>-
+`operator`: Check Logic (be, not be, contain, not contain, be greater than, be less than, be set, not be set, be one of, or not be one of) <br><br>- `cosinesimilarity`: Expected Cosine Similarity Score (0-1) |
+
 <!-- stepDetailsEnd -->
 
 ## Development and Contributing
