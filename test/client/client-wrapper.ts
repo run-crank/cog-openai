@@ -4,7 +4,7 @@ import * as sinonChai from 'sinon-chai';
 import 'mocha';
 
 import { ClientWrapper } from '../../src/client/client-wrapper';
-import { Metadata } from 'grpc';
+import { Metadata } from '@grpc/grpc-js';
 
 chai.use(sinonChai);
 chai.use(require('chai-as-promised'));

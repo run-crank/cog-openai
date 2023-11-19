@@ -4,10 +4,9 @@ import { default as sinon } from 'ts-sinon';
 import * as sinonChai from 'sinon-chai';
 import 'mocha';
 
-import { Step as ProtoStep, StepDefinition, FieldDefinition, RunStepResponse, RunStepRequest } from '../../src/proto/cog_pb';
+import { Step as ProtoStep, StepDefinition, FieldDefinition, RunStepResponse, RunStepRequest, CogManifest } from '../../src/proto/cog_pb';
 import { Cog } from '../../src/core/cog';
-import { CogManifest } from '../../src/proto/cog_pb';
-import { Metadata } from 'grpc';
+import { Metadata } from '@grpc/grpc-js';
 import { Duplex } from 'stream';
 
 chai.use(sinonChai);

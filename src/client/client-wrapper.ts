@@ -1,4 +1,4 @@
-import * as grpc from 'grpc';
+import * as grpc from '@grpc/grpc-js';
 import { Field } from '../core/base-step';
 import { FieldDefinition } from '../proto/cog_pb';
 import {
