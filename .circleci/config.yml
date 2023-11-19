@@ -1,0 +1,230 @@
+##
+# The following Circle CI configuration will do the following:
+#
+# - On every branch except master:
+#   - Runs npm run lint and npm test
+#   - Runs docker build and attempts to crank cog:install the local, built cog.
+# - On master branch commits:
+#   - Runs the above lint/tests
+#   - Build sthe docker image and attempts to install the local, built cog.
+#    - Tags the local image with dev-v[N], and pushes the tag up.
+# - On every git tag beginning with `vX.Y.Z`:
+#   - Builds the docker image
+#   - Tags the image `latest` and `X.Y.Z` and pushes both tags
+#
+# In order for Docker publishing to work, you will need to do the following:
+#
+# - Set up a Circle CI context called `docker-creds-to-publish-cogs`
+# - In this context, add `DOCKERHUB_SM_USERNAME` and `DOCKERHUB_PASS` environment
+#   variables, using credentials that can push to `stackmoxie/openai`
+#
+# @see https://circleci.com/docs/2.0/contexts/
+##
+
+version: 2.1
+executors:
+  docker-publisher:
+    environment:
+      IMAGE_NAME: stackmoxie/openai
+    docker:
+      - image: cimg/base:stable
+  docker-user:
+    environment:
+      IMAGE_NAME: stackmoxie/openai
+    machine:
+      image: ubuntu-2004:202201-02
+
+jobs:
+  test:
+    docker:
+      - image: cimg/node:12.0
+      - image: redis
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            # Find a cache corresponding to this specific package-lock.json
+            - v1-npm-deps-{{ checksum "package-lock.json" }}
+            # Fallback cache to be used
+            - v1-npm-deps-
+      - run:
+          name: Install Dependencies
+          command: |
+            npm install
+      - save_cache:
+          key: v1-npm-deps-{{ checksum "package-lock.json" }}
+          paths:
+            - ./node_modules
+      - run:
+          name: Lint Code
+          command: |
+            npm run lint
+      - run:
+          name: Test Code
+          command: |
+            npm test
+
+  build:
+    executor: docker-publisher
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build Docker image
+          command: |
+            docker build -t $IMAGE_NAME:latest .
+      - run:
+          name: Archive Docker image
+          command: docker save -o image.tar $IMAGE_NAME
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./image.tar
+
+  install-built-cog:
+    executor: docker-user
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          name: Load archived Docker image
+          command: docker load -i /tmp/workspace/image.tar
+      - run:
+          name: Install Crank and the built Cog
+          command: |
+            curl -s https://get.crank.run/install.sh | sh
+            docker tag $IMAGE_NAME:latest $IMAGE_NAME:local-test
+            crank cog:install $IMAGE_NAME:local-test --ignore-auth
+      - run:
+          name: List steps
+          command: crank registry:steps
+      - run:
+          name: Uninstall Cog
+          command: crank cog:uninstall $IMAGE_NAME --force
+
+  run-test-scenarios:
+    executor: docker-user
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          name: Load archived Docker image
+          command: docker load -i /tmp/workspace/image.tar
+      - run:
+          name: Install Crank and required Cogs
+          command: |
+            curl -s https://get.crank.run/install.sh | sh
+            docker tag $IMAGE_NAME:latest $IMAGE_NAME:local-test
+            crank cog:install $IMAGE_NAME:local-test
+      # - run:
+      #     name: Run all test scenarios
+      #     command: crank run ./test/scenarios
+
+  publish-dev:
+    executor: docker-publisher
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - setup_remote_docker
+      - run:
+          name: Load archived Docker image
+          command: docker load -i /tmp/workspace/image.tar
+      - run:
+          name: Publish Docker Image to Docker Hub
+          command: |
+            echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_SM_USERNAME" --password-stdin
+            IMAGE_TAG="dev-v${CIRCLE_BUILD_NUM}"
+            docker tag $IMAGE_NAME:latest $IMAGE_NAME:$IMAGE_TAG
+            docker push $IMAGE_NAME:$IMAGE_TAG
+
+  publish-tag:
+    executor: docker-publisher
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - setup_remote_docker
+      - run:
+          name: Load archived Docker image
+          command: docker load -i /tmp/workspace/image.tar
+      - run:
+          name: Publish Docker Image to Docker Hub
+          command: |
+            echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_SM_USERNAME" --password-stdin
+            IMAGE_TAG=${CIRCLE_TAG/v/''}
+            docker tag $IMAGE_NAME:latest $IMAGE_NAME:$IMAGE_TAG
+            docker push $IMAGE_NAME:latest
+            docker push $IMAGE_NAME:$IMAGE_TAG
+
+workflows:
+  version: 2
+  test-all-branches:
+    jobs:
+      - test:
+          filters:
+            branches:
+              ignore:
+                - master
+            tags:
+              ignore: /.*/
+      - build:
+          filters:
+            branches:
+              ignore:
+                - master
+            tags:
+              ignore: /.*/
+      - install-built-cog:
+          requires:
+            - test
+            - build
+          filters:
+            branches:
+              ignore:
+                - master
+            tags:
+              ignore: /.*/
+
+  build-master:
+    jobs:
+      - test:
+          filters:
+            branches:
+              only: master
+      - build:
+          filters:
+            branches:
+              only: master
+      - run-test-scenarios:
+          context: openai-cog-sandbox-env-credentials
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+      - publish-dev:
+          context: docker-creds-to-publish-cogs
+          requires:
+            - test
+            - run-test-scenarios
+          filters:
+            branches:
+              only: master
+
+  build-tags:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+      - publish-tag:
+          context: docker-creds-to-publish-cogs
+          requires:
+            - build
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
