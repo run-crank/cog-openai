@@ -1,10 +1,10 @@
 ##
 # The following Circle CI configuration will do the following:
 #
-# - On every branch except master:
+# - On every branch except main:
 #   - Runs npm run lint and npm test
 #   - Runs docker build and attempts to crank cog:install the local, built cog.
-# - On master branch commits:
+# - On main branch commits:
 #   - Runs the above lint/tests
 #   - Build sthe docker image and attempts to install the local, built cog.
 #    - Tags the local image with dev-v[N], and pushes the tag up.
@@ -27,7 +27,7 @@ executors:
     environment:
       IMAGE_NAME: stackmoxie/openai
     docker:
-      - image: cimg/base
+      - image: cimg/base:stable
   docker-user:
     environment:
       IMAGE_NAME: stackmoxie/openai
@@ -185,7 +185,7 @@ workflows:
             tags:
               ignore: /.*/
 
-  build-master:
+  build-main:
     jobs:
       - test:
           filters:
