@@ -27,7 +27,7 @@ executors:
     environment:
       IMAGE_NAME: stackmoxie/openai
     docker:
-      - image: cimg/base:stable
+      - image: cimg/node:21.2
   docker-user:
     environment:
       IMAGE_NAME: stackmoxie/openai
@@ -37,7 +37,7 @@ executors:
 jobs:
   test:
     docker:
-      - image: cimg/base
+      - image: cimg/node:21.2
       - image: redis
     steps:
       - checkout
