@@ -1,4 +1,5 @@
-FROM node:21-alpine
+FROM alpine:3.18
+ENV NODE_VERSION 21.2.0
 WORKDIR /app
 COPY package.json package-lock.json tsconfig.json ./
 COPY src ./src
