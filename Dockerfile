@@ -1,4 +1,4 @@
-FROM mhart/alpine-node:12 AS build
+FROM node:21-alpine
 WORKDIR /app
 COPY package.json package-lock.json tsconfig.json ./
 COPY src ./src
@@ -11,7 +11,6 @@ RUN wget -O /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/
   chmod 755 /usr/local/bin/dumb-init
 
 # Only copy over the node pieces we need from the above image
-FROM node:21-alpine
 WORKDIR /app
 COPY --from=build /usr/local/bin/dumb-init /usr/local/bin/dumb-init
 COPY --from=build /app .
