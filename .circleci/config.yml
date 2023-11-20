@@ -27,17 +27,17 @@ executors:
     environment:
       IMAGE_NAME: stackmoxie/openai
     docker:
-      - image: cimg/base:stable
+      - image: cimg/base
   docker-user:
     environment:
       IMAGE_NAME: stackmoxie/openai
     machine:
-      image: ubuntu-2004:202201-02
+      image: ubuntu-2004:current
 
 jobs:
   test:
     docker:
-      - image: cimg/node:12.0
+      - image: cimg/base
       - image: redis
     steps:
       - checkout
@@ -164,14 +164,14 @@ workflows:
           filters:
             branches:
               ignore:
-                - master
+                - main
             tags:
               ignore: /.*/
       - build:
           filters:
             branches:
               ignore:
-                - master
+                - main
             tags:
               ignore: /.*/
       - install-built-cog:
@@ -181,7 +181,7 @@ workflows:
           filters:
             branches:
               ignore:
-                - master
+                - main
             tags:
               ignore: /.*/
 
@@ -190,18 +190,18 @@ workflows:
       - test:
           filters:
             branches:
-              only: master
+              only: main
       - build:
           filters:
             branches:
-              only: master
+              only: main
       - run-test-scenarios:
           context: openai-cog-sandbox-env-credentials
           requires:
             - build
           filters:
             branches:
-              only: master
+              only: main
       - publish-dev:
           context: docker-creds-to-publish-cogs
           requires:
@@ -209,7 +209,7 @@ workflows:
             - run-test-scenarios
           filters:
             branches:
-              only: master
+              only: main
 
   build-tags:
     jobs:
