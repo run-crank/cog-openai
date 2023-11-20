@@ -1,4 +1,4 @@
-FROM node:21-alpine
+FROM node:21-alpine AS build
 ENV NODE_VERSION 21.2.0
 WORKDIR /app
 COPY package.json package-lock.json tsconfig.json ./
@@ -12,9 +12,10 @@ RUN wget -O /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/
   chmod 755 /usr/local/bin/dumb-init
 
 # Only copy over the node pieces we need from the above image
+FROM node:21-alpine AS final
 WORKDIR /app
-COPY /usr/local/bin/dumb-init /usr/local/bin/dumb-init
-COPY /app .
+COPY --from=build /usr/local/bin/dumb-init /usr/local/bin/dumb-init
+COPY --from=build /app .
 COPY . .
 EXPOSE 28866
 LABEL com.automatoninc.cog-for="OpenAI"
