@@ -1,18 +1,26 @@
-/*tslint:disable:no-else-after-return*/
+/* tslint:disable:no-else-after-return */
 // FRES Flesch reading-ease score
-import { BaseStep, Field, StepInterface, ExpectedRecord } from '../../core/base-step';
-import { Step, FieldDefinition, StepDefinition, RecordDefinition, StepRecord } from '../../proto/cog_pb';
 import * as util from '@run-crank/utilities';
+import {
+  BaseStep, Field, StepInterface, ExpectedRecord,
+} from '../../core/base-step';
+import {
+  Step, FieldDefinition, StepDefinition, RecordDefinition, StepRecord,
+} from '../../proto/cog_pb';
 import { baseOperators } from '../../client/constants/operators';
 
 export class CompletionReadability extends BaseStep implements StepInterface {
-
   protected stepName: string = 'Check OpenAI GPT prompt response FRES reading ease evaluation';
+
   // tslint:disable-next-line:max-line-length
   protected stepExpression: string = 'OpenAI model (?<model>[a-zA-Z0-9_-]+) school level of the response to "(?<prompt>[a-zA-Z0-9_ -]+)" should (?<operator>be less than|be greater than|be one of|be|not be one of|not be) ?(?<schoollevel>.+)?';
+
   protected stepType: StepDefinition.Type = StepDefinition.Type.VALIDATION;
+
   protected actionList: string[] = ['check'];
+
   protected targetObject: string = 'completion';
+
   protected expectedFields: Field[] = [{
     field: 'prompt',
     type: FieldDefinition.Type.STRING,
@@ -49,11 +57,11 @@ export class CompletionReadability extends BaseStep implements StepInterface {
       field: 'response',
       type: FieldDefinition.Type.STRING,
       description: 'Completion Model Response',
-    },  {
+    }, {
       field: 'score',
       type: FieldDefinition.Type.STRING,
       description: 'Completion Score',
-    },  {
+    }, {
       field: 'schoollevel',
       type: FieldDefinition.Type.STRING,
       description: 'Completion Flesch–Kincaid grade level',
@@ -73,7 +81,7 @@ export class CompletionReadability extends BaseStep implements StepInterface {
     dynamicFields: true,
   }];
 
-  fleschScoreToSchoolLevel(score) {
+  static fleschScoreToSchoolLevel(score) {
     if (score >= 90) {
       return { score, schoollevel: '5th grade', notes: 'Very easy to read. Easily understood by an average 11-year-old student.' };
     } else if (score >= 80) {
@@ -93,7 +101,7 @@ export class CompletionReadability extends BaseStep implements StepInterface {
     }
   }
 
-  fleschSchoolLevelToScore(schoollevel) {
+  static fleschSchoolLevelToScore(schoollevel) {
     switch (schoollevel) {
       case '5th grade':
         return 90;
@@ -114,7 +122,7 @@ export class CompletionReadability extends BaseStep implements StepInterface {
     }
   }
 
-  getFleschReadingEaseScore(text: String) {
+  static getFleschReadingEaseScore(text: String) {
     const sentences = text.split(/[.|!|?]+/);
     const words = text.split(' ');
     const syllables = text.split(/[aeiouy]+/).length - 1;
@@ -125,8 +133,8 @@ export class CompletionReadability extends BaseStep implements StepInterface {
   async executeStep(step: Step) {
     const stepData: any = step.getData() ? step.getData().toJavaScript() : {};
     const expectedSchoolLevel = stepData.schoollevel;
-    const prompt = stepData.prompt;
-    const model = stepData.model;
+    const { prompt } = stepData;
+    const { model } = stepData;
     const operator = stepData.operator || 'be';
 
     try {
@@ -137,11 +145,9 @@ export class CompletionReadability extends BaseStep implements StepInterface {
       messages.push(message);
       const completion = await this.client.getChatCompletion(model, messages);
       const response = completion.choices[0].message.content;
-      const fleschReadingEaseScore = this.getFleschReadingEaseScore(response);
-      console.log('Flesch Reading Ease Score: ', fleschReadingEaseScore);
-      const fleschReadingEaseScoreObj = this.fleschScoreToSchoolLevel(fleschReadingEaseScore);
-      console.log('Flesch Reading Ease Score Object: ', fleschReadingEaseScoreObj);
-      const expectedScore = this.fleschSchoolLevelToScore(expectedSchoolLevel);
+      const fleschReadingEaseScore = CompletionReadability.getFleschReadingEaseScore(response);
+      const fleschReadingEaseScoreObj = CompletionReadability.fleschScoreToSchoolLevel(fleschReadingEaseScore);
+      const expectedScore = CompletionReadability.fleschSchoolLevelToScore(expectedSchoolLevel);
       const actualScore = fleschReadingEaseScoreObj.score;
       const result = this.assert(operator, actualScore.toString(), expectedScore.toString(), 'response');
 
@@ -155,7 +161,7 @@ export class CompletionReadability extends BaseStep implements StepInterface {
         usage: completion.usage,
         created: completion.created,
       };
-      const records = this.createRecords(returnObj, stepData['__stepOrder']);
+      const records = this.createRecords(returnObj, stepData.__stepOrder);
       return result.valid ? this.pass(result.message, [], records) : this.fail(result.message, [], records);
     } catch (e) {
       if (e instanceof util.UnknownOperatorError) {

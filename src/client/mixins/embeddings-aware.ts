@@ -2,6 +2,7 @@ import openai from 'openai';
 
 export class EmbeddingsAwareMixin {
   clientReady: Promise<boolean>;
+
   client: openai;
 
   public async getEmbeddings(model: string, input: string): Promise<any> {

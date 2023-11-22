@@ -1,18 +1,26 @@
-/*tslint:disable:no-else-after-return*/
+/* tslint:disable:no-else-after-return */
 
-import { BaseStep, Field, StepInterface, ExpectedRecord } from '../../core/base-step';
-import { Step, FieldDefinition, StepDefinition, RecordDefinition, StepRecord } from '../../proto/cog_pb';
 import * as util from '@run-crank/utilities';
+import {
+  BaseStep, Field, StepInterface, ExpectedRecord,
+} from '../../core/base-step';
+import {
+  Step, FieldDefinition, StepDefinition, RecordDefinition, StepRecord,
+} from '../../proto/cog_pb';
 import { baseOperators } from '../../client/constants/operators';
 
 export class CompletionWordCount extends BaseStep implements StepInterface {
-
   protected stepName: string = 'Check OpenAI GPT prompt response word count from completion';
+
   // tslint:disable-next-line:max-line-length
   protected stepExpression: string = 'OpenAI model (?<model>[a-zA-Z0-9_-]+) word count in a response to "(?<prompt>[a-zA-Z0-9_ -]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) ?(?<expectation>.+)?';
+
   protected stepType: StepDefinition.Type = StepDefinition.Type.VALIDATION;
+
   protected actionList: string[] = ['check'];
+
   protected targetObject: string = 'Completion';
+
   protected expectedFields: Field[] = [{
     field: 'prompt',
     type: FieldDefinition.Type.STRING,
@@ -49,7 +57,7 @@ export class CompletionWordCount extends BaseStep implements StepInterface {
       field: 'response',
       type: FieldDefinition.Type.STRING,
       description: 'Completion Model Response',
-    },  {
+    }, {
       field: 'word count',
       type: FieldDefinition.Type.NUMERIC,
       description: 'Completion Word Count',
@@ -65,15 +73,15 @@ export class CompletionWordCount extends BaseStep implements StepInterface {
     dynamicFields: true,
   }];
 
-  getWordCount(text: string): number {
+  static getWordCount(text: string): number {
     return text.split(' ').length;
   }
 
   async executeStep(step: Step) {
     const stepData: any = step.getData() ? step.getData().toJavaScript() : {};
-    const expectation = stepData.expectation;
-    const prompt = stepData.prompt;
-    const model = stepData.model;
+    const { expectation } = stepData;
+    const { prompt } = stepData;
+    const { model } = stepData;
     const operator = stepData.operator || 'be';
 
     try {
@@ -84,7 +92,7 @@ export class CompletionWordCount extends BaseStep implements StepInterface {
       messages.push(message);
       const completion = await this.client.getChatCompletion(model, messages);
       const response = completion.choices[0].message.content;
-      const actual = this.getWordCount(response);
+      const actual = CompletionWordCount.getWordCount(response);
       const result = this.assert(operator, actual.toString(), expectation.toString(), 'response');
       const returnObj = {
         model,
@@ -94,7 +102,7 @@ export class CompletionWordCount extends BaseStep implements StepInterface {
         usage: completion.usage,
         created: completion.created,
       };
-      const records = this.createRecords(returnObj, stepData['__stepOrder']);
+      const records = this.createRecords(returnObj, stepData.__stepOrder);
       return result.valid ? this.pass(result.message, [], records) : this.fail(result.message, [], records);
     } catch (e) {
       if (e instanceof util.UnknownOperatorError) {

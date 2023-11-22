@@ -1,18 +1,26 @@
-/*tslint:disable:no-else-after-return*/
+/* tslint:disable:no-else-after-return */
 
-import { BaseStep, Field, StepInterface, ExpectedRecord } from '../../core/base-step';
-import { Step, FieldDefinition, StepDefinition, RecordDefinition, StepRecord } from '../../proto/cog_pb';
 import * as util from '@run-crank/utilities';
+import {
+  BaseStep, Field, StepInterface, ExpectedRecord,
+} from '../../core/base-step';
+import {
+  Step, FieldDefinition, StepDefinition, RecordDefinition, StepRecord,
+} from '../../proto/cog_pb';
 import { baseOperators } from '../../client/constants/operators';
 
 export class CompletionEquals extends BaseStep implements StepInterface {
-
   protected stepName: string = 'Check OpenAI GPT prompt response from completion';
+
   // tslint:disable-next-line:max-line-length
   protected stepExpression: string = 'OpenAI model (?<model>[a-zA-Z0-9_-]+) response to "(?<prompt>[a-zA-Z0-9_ -]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) ?(?<expectation>.+)?';
+
   protected stepType: StepDefinition.Type = StepDefinition.Type.VALIDATION;
+
   protected actionList: string[] = ['check'];
+
   protected targetObject: string = 'Completion';
+
   protected expectedFields: Field[] = [{
     field: 'prompt',
     type: FieldDefinition.Type.STRING,
@@ -63,9 +71,9 @@ export class CompletionEquals extends BaseStep implements StepInterface {
 
   async executeStep(step: Step) {
     const stepData: any = step.getData() ? step.getData().toJavaScript() : {};
-    const expectation = stepData.expectation;
-    const prompt = stepData.prompt;
-    const model = stepData.model;
+    const { expectation } = stepData;
+    const { prompt } = stepData;
+    const { model } = stepData;
     const operator = stepData.operator || 'be';
 
     try {
@@ -77,7 +85,7 @@ export class CompletionEquals extends BaseStep implements StepInterface {
       const completion = await this.client.getChatCompletion(model, messages);
       const actual = completion.choices[0].message.content;
       const result = this.assert(operator, actual, expectation, 'response');
-      const records = this.createRecords(completion, stepData['__stepOrder']);
+      const records = this.createRecords(completion, stepData.__stepOrder);
       return result.valid ? this.pass(result.message, [], records) : this.fail(result.message, [], records);
     } catch (e) {
       if (e instanceof util.UnknownOperatorError) {

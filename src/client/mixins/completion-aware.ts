@@ -2,6 +2,7 @@ import openai from 'openai';
 
 export class CompletionAwareMixin {
   clientReady: Promise<boolean>;
+
   client: openai;
 
   public async getChatCompletion(model: string, messages: any[], functions?: any[]): Promise<any> {

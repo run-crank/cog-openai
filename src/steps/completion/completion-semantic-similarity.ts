@@ -1,20 +1,28 @@
-/*tslint:disable:no-else-after-return*/
+/* tslint:disable:no-else-after-return */
 
-import { BaseStep, Field, StepInterface, ExpectedRecord } from '../../core/base-step';
-import { Step, FieldDefinition, StepDefinition, RecordDefinition, StepRecord } from '../../proto/cog_pb';
 import * as util from '@run-crank/utilities';
-import { baseOperators } from '../../client/constants/operators';
 import * as similarity from 'similarity';
 import * as stringSimilarity from 'string-similarity';
+import {
+  BaseStep, Field, StepInterface, ExpectedRecord,
+} from '../../core/base-step';
+import {
+  Step, FieldDefinition, StepDefinition, RecordDefinition, StepRecord,
+} from '../../proto/cog_pb';
+import { baseOperators } from '../../client/constants/operators';
 
 export class CompletionSemanticSimilarity extends BaseStep implements StepInterface {
-
   protected stepName: string = 'Check OpenAI GPT semantic similarity of response to provided text from completion';
+
   // tslint:disable-next-line:max-line-length
   protected stepExpression: string = 'OpenAI model (?<model>[a-zA-Z0-9_-]+) response to "(?<prompt>[a-zA-Z0-9_ -]+)" semantically compared with "(?<comparetext>[a-zA-Z0-9_ -]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) ?(?<semanticsimilarity>.+)?';
+
   protected stepType: StepDefinition.Type = StepDefinition.Type.VALIDATION;
+
   protected actionList: string[] = ['check'];
+
   protected targetObject: string = 'Completion';
+
   protected expectedFields: Field[] = [{
     field: 'prompt',
     type: FieldDefinition.Type.STRING,
@@ -75,15 +83,15 @@ export class CompletionSemanticSimilarity extends BaseStep implements StepInterf
     dynamicFields: true,
   }];
 
-  levensteinDistance(s1: string, s2: string): number {
+  static levensteinDistance(s1: string, s2: string): number {
     return similarity(s1, s2);
   }
 
   async executeStep(step: Step) {
     const stepData: any = step.getData() ? step.getData().toJavaScript() : {};
     const compareText = stepData.comparetext;
-    const prompt = stepData.prompt;
-    const model = stepData.model;
+    const { prompt } = stepData;
+    const { model } = stepData;
     const expectedSimilarity = stepData.semanticsimilarity;
     const operator = stepData.operator || 'be';
 
@@ -95,7 +103,7 @@ export class CompletionSemanticSimilarity extends BaseStep implements StepInterf
       messages.push(message);
       const completion = await this.client.getChatCompletion(model, messages);
       const response = completion.choices[0].message.content;
-      const levensteinDistance = this.levensteinDistance(response, compareText);
+      const levensteinDistance = CompletionSemanticSimilarity.levensteinDistance(response, compareText);
       const diceCoefficient = stringSimilarity.compareTwoStrings(response, compareText);
       const result = this.assert(operator, levensteinDistance.toString(), expectedSimilarity.toString(), 'response');
       const returnObj = {
@@ -107,7 +115,7 @@ export class CompletionSemanticSimilarity extends BaseStep implements StepInterf
         usage: completion.usage,
         created: completion.created,
       };
-      const records = this.createRecords(returnObj, stepData['__stepOrder']);
+      const records = this.createRecords(returnObj, stepData.__stepOrder);
       return result.valid ? this.pass(result.message, [], records) : this.fail(result.message, [], records);
     } catch (e) {
       if (e instanceof util.UnknownOperatorError) {
