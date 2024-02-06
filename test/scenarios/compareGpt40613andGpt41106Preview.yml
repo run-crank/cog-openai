@@ -20,6 +20,6 @@ steps:
 - step: OpenAI model {{test.modela}} response to "What is the capital of Canada" semantically compared with "The capital of Canada is Ottawa" should {{test.operator}} {{test.semanticsimilarity}}
   data:
     __stepOrder: 3
-- step: OpenAI model {{test.modelb}} response to "What is the capital of Canada" semantically compared with "The capital of canada is Ottawa" should be greater than {{test.semanticsimilarity}}
+- step: OpenAI model {{test.modelb}} response to "What is the capital of Canada" semantically compared with "The capital of Canada is Ottawa" should be greater than {{test.semanticsimilarity}}
   data:
     __stepOrder: 4
