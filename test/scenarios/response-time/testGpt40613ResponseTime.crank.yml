@@ -8,4 +8,4 @@ tokens:
     responseTime: 1000
     modela: gpt-4-0613
 steps:
-- step: OpenAI model {{test.modela}} response time in a response to "{{test.trivialPrompt}}" should {{test.operator}} {{test.responseTime}} ms
+- step: OpenAI model {{test.modela}} response time in response to "{{test.trivialPrompt}}" should {{test.operator}} {{test.responseTime}} ms
