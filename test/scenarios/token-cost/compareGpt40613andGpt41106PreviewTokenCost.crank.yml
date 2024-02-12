@@ -1,0 +1,18 @@
+scenario: Compare completion token cost of models Gpt 40613 and Gpt 41106 Preview with a vague prompt
+description: Asks a vague question to Gpt 40613 and Gpt 41106 Preview and checks which model returns a completion token cost of less than 250 tokens (expecation based on ChatGPT 3.5)
+
+tokens:
+  test:
+    trivialPrompt: give me the summary of the bee movie
+    operator: be less than
+    expectation: 250
+    tokenTypeA: completion
+    modelA: gpt-4-0613
+    modelB: gpt-4-1106-preview
+steps:
+- step: OpenAI model {{test.modelA}} {{test.tokenTypeA}} token cost in response to "{{test.trivialPrompt}}" should {{test.operator}} {{test.expectation}} tokens
+  data:
+    __stepOrder: 1
+- step: OpenAI model {{test.modelB}} {{test.tokenTypeA}} token cost in response to "{{test.trivialPrompt}}" should {{test.operator}} {{test.expectation}} tokens
+  data:
+    __stepOrder: 2
