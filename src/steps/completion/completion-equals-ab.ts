@@ -1,19 +1,27 @@
-/*tslint:disable:no-else-after-return*/
+/* tslint:disable:no-else-after-return */
 
-import { BaseStep, Field, StepInterface, ExpectedRecord } from '../../core/base-step';
-import { Step, FieldDefinition, StepDefinition, RecordDefinition, StepRecord } from '../../proto/cog_pb';
 import * as util from '@run-crank/utilities';
-import { baseOperators } from '../../client/constants/operators';
 import * as _ from 'lodash';
+import {
+  BaseStep, Field, StepInterface, ExpectedRecord,
+} from '../../core/base-step';
+import {
+  Step, FieldDefinition, StepDefinition, RecordDefinition, StepRecord,
+} from '../../proto/cog_pb';
+import { baseOperators } from '../../client/constants/operators';
 
 export class CompletionEqualsAb extends BaseStep implements StepInterface {
-
   protected stepName: string = 'Compare OpenAI GPT model A and B prompt responses from completion';
+
   // tslint:disable-next-line:max-line-length
   protected stepExpression: string = 'OpenAI model (?<modela>[a-zA-Z0-9_-]+) and (?<modelb>[a-zA-Z0-9_-]+) responses to "(?<prompt>[a-zA-Z0-9_ -]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) ?(?<expectation>.+)?';
+
   protected stepType: StepDefinition.Type = StepDefinition.Type.VALIDATION;
+
   protected actionList: string[] = ['check'];
+
   protected targetObject: string = 'CompletionAB';
+
   protected expectedFields: Field[] = [{
     field: 'prompt',
     type: FieldDefinition.Type.STRING,
@@ -68,10 +76,10 @@ export class CompletionEqualsAb extends BaseStep implements StepInterface {
 
   async executeStep(step: Step) {
     const stepData: any = step.getData() ? step.getData().toJavaScript() : {};
-    const expectation = stepData.expectation;
-    const prompt = stepData.prompt;
-    const modela = stepData.modela;
-    const modelb = stepData.modelb;
+    const { expectation } = stepData;
+    const { prompt } = stepData;
+    const { modela } = stepData;
+    const { modelb } = stepData;
     const operator = stepData.operator || 'be';
 
     try {
@@ -109,7 +117,6 @@ export class CompletionEqualsAb extends BaseStep implements StepInterface {
 
       return result ? this.pass('%d model passed the test', [passedModels.length], records)
         : this.fail('%d models failed the test and %d models passed the test', [failedModels.length, passedModels.length], records);
-
     } catch (e) {
       if (e instanceof util.UnknownOperatorError) {
         return this.error('%s Please provide one of: %s', [e.message, baseOperators.join(', ')]);

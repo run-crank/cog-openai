@@ -1,19 +1,28 @@
-/*tslint:disable:no-else-after-return*/
+/* tslint:disable:no-else-after-return */
 
-import { BaseStep, Field, StepInterface, ExpectedRecord } from '../../core/base-step';
-import { Step, FieldDefinition, StepDefinition, RecordDefinition, StepRecord } from '../../proto/cog_pb';
 import * as util from '@run-crank/utilities';
+import {
+  BaseStep, Field, StepInterface, ExpectedRecord,
+} from '../../core/base-step';
+import {
+  Step, FieldDefinition, StepDefinition, RecordDefinition, StepRecord,
+} from '../../proto/cog_pb';
 import { baseOperators } from '../../client/constants/operators';
+
 const similarity = require('compute-cosine-similarity');
 
 export class EmbeddingsCosineSimilarity extends BaseStep implements StepInterface {
-
   protected stepName: string = 'Check OpenAI GPT cosine similarity of two texts based on embeddings';
+
   // tslint:disable-next-line:max-line-length
   protected stepExpression: string = 'OpenAI model (?<model>[a-zA-Z0-9_-]+) cosine similarity of "(?<text1>[a-zA-Z0-9_ -]+)" and "(?<text2>[a-zA-Z0-9_ -]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) ?(?<semanticsimilarity>.+)?';
+
   protected stepType: StepDefinition.Type = StepDefinition.Type.VALIDATION;
+
   protected actionList: string[] = ['check'];
+
   protected targetObject: string = 'Completion';
+
   protected expectedFields: Field[] = [{
     field: 'text1',
     type: FieldDefinition.Type.STRING,
@@ -71,8 +80,8 @@ export class EmbeddingsCosineSimilarity extends BaseStep implements StepInterfac
 
   async executeStep(step: Step) {
     const stepData: any = step.getData() ? step.getData().toJavaScript() : {};
-    const text1 = stepData.text1;
-    const text2 = stepData.text2;
+    const { text1 } = stepData;
+    const { text2 } = stepData;
     const model = stepData.model || 'text-embedding-ada-002';
     const expectedSimilarity = stepData.cosinesimilarity;
     const operator = stepData.operator || 'be';
@@ -90,7 +99,7 @@ export class EmbeddingsCosineSimilarity extends BaseStep implements StepInterfac
         text1Usage: text1EmbeddingsResult.usage,
         text2Usage: text2EmbeddingsResult.usage,
       };
-      const records = this.createRecords(returnObj, stepData['__stepOrder']);
+      const records = this.createRecords(returnObj, stepData.__stepOrder);
       return result.valid ? this.pass(result.message, [], records) : this.fail(result.message, [], records);
     } catch (e) {
       if (e instanceof util.UnknownOperatorError) {
