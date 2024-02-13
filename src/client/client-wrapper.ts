@@ -13,7 +13,6 @@ import openai from 'openai';
  * accessed on each step as this.client.
  */
 class ClientWrapper {
-
   /**
    * This is an array of field definitions, each corresponding to a field that
    * your API client requires for authentication. Depending on the underlying
@@ -34,7 +33,9 @@ class ClientWrapper {
    * to swap this out for an API client specific to your Cog's needs.
    */
   auth: grpc.Metadata;
+
   client: openai;
+
   clientReady: Promise<boolean>;
 
   /**
@@ -49,13 +50,13 @@ class ClientWrapper {
    *   simplify automated testing. Should default to the class/constructor of
    *   the underlying/wrapped API client.
    */
-  constructor (auth: grpc.Metadata, clientConstructor = openai.OpenAI) {
+  constructor(auth: grpc.Metadata, clientConstructor = openai.OpenAI) {
     // Call auth.get() for any field defined in the static expectedAuthFields
     // array here. The argument passed to get() should match the "field" prop
     // declared on the definition object above.
     this.auth = auth;
     this.client = new clientConstructor({
-      apiKey: this.auth.get('apiKey').toString(),  // defaults to process.env["OPENAI_API_KEY"]
+      apiKey: this.auth.get('apiKey').toString(), // defaults to process.env["OPENAI_API_KEY"]
     });
     this.clientReady = Promise.resolve(true);
   }
@@ -72,10 +73,10 @@ applyMixins(ClientWrapper, [
 function applyMixins(derivedCtor: any, baseCtors: any[]) {
   baseCtors.forEach((baseCtor) => {
     Object.getOwnPropertyNames(baseCtor.prototype).forEach((name) => {
-          // tslint:disable-next-line:max-line-length
+      // tslint:disable-next-line:max-line-length
       Object.defineProperty(derivedCtor.prototype, name, Object.getOwnPropertyDescriptor(baseCtor.prototype, name));
     });
   });
 }
 
-export { ClientWrapper as ClientWrapper };
+export { ClientWrapper };

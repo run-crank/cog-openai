@@ -7,6 +7,15 @@
     "eqeqeq": "off",
     "no-else-return": "off",
     "quote-props": "off",
-    "no-param-reassign": "off"
+    "no-param-reassign": "off",
+    "dot-notation": "off",
+    "no-use-before-define": "off",
+    "no-redeclare": "off",
+    "import/no-unresolved": "off",
+    "import/extensions": "off",
+    "import/order": "off",
+    "new-cap": "off",
+    "import/prefer-default-export": "off",
+    "no-underscore-dangle": "off"
   }
 }
