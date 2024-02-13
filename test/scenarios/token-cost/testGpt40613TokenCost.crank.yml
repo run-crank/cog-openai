@@ -1,5 +1,5 @@
 scenario: Compare Gpt 40613 And Gpt 41106 Preview Completion Token Cost
-description: Asks a simple question to Gpt 40613 and checks if the response time is less than 1 second
+description: Asks a simple question to Gpt 40613 and Gpt 41106 Preview to compare token cost (expected token is based on ChatGPT 3.5 token cost)
 
 tokens:
   test:
