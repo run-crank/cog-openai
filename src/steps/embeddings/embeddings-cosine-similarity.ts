@@ -15,7 +15,7 @@ export class EmbeddingsCosineSimilarity extends BaseStep implements StepInterfac
   protected stepName: string = 'Check OpenAI GPT cosine similarity of two texts based on embeddings';
 
   // tslint:disable-next-line:max-line-length
-  protected stepExpression: string = 'OpenAI model (?<model>[a-zA-Z0-9_-]+) cosine similarity of "(?<text1>[a-zA-Z0-9_ -]+)" and "(?<text2>[a-zA-Z0-9_ -]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) ?(?<semanticsimilarity>.+)?';
+  protected stepExpression: string = 'OpenAI model (?<model>[a-zA-Z0-9_-.]+) cosine similarity of "(?<text1>[a-zA-Z0-9_ -]+)" and "(?<text2>[a-zA-Z0-9_ -]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) ?(?<semanticsimilarity>.+)?';
 
   protected stepType: StepDefinition.Type = StepDefinition.Type.VALIDATION;
 
