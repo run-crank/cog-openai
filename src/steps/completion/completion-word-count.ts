@@ -15,6 +15,7 @@ export class CompletionWordCount extends BaseStep implements StepInterface {
   // tslint:disable-next-line:max-line-length
   protected stepExpression: string = 'OpenAI model (?<model>[a-zA-Z0-9_-.]+) word count in a response to "(?<prompt>[a-zA-Z0-9_ -\p{P}]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) ?(?<expectation>.+)?';
 
+
   protected stepType: StepDefinition.Type = StepDefinition.Type.VALIDATION;
 
   protected actionList: string[] = ['check'];
