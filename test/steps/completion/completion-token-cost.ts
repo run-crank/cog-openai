@@ -2,11 +2,10 @@ import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
 import { expect } from 'chai';
 import { default as sinon } from 'ts-sinon';
 import 'mocha';
+import { Step as ProtoStep, RunStepResponse, StepDefinition, FieldDefinition } from '../../../src/proto/cog_pb';
+import { CompletionTokenCost as Step} from './../../../src/steps/completion/completion-token-cost';
 
-import { Step as ProtoStep, StepDefinition, FieldDefinition, RunStepResponse } from '../../../src/proto/cog_pb';
-import { CompletionEquals as Step } from '../../../src/steps/completion/completion-equals';
-
-describe('CompletionEquals', () => {
+describe('CompletionTokenCost', () => {
   let protoStep: ProtoStep;
   let stepUnderTest: Step;
   let clientWrapperStub: any;
@@ -21,9 +20,9 @@ describe('CompletionEquals', () => {
   describe('Metadata', () => {
     it('should return expected step metadata', () => {
       const stepDef: StepDefinition = stepUnderTest.getDefinition();
-      expect(stepDef.getStepId()).to.equal('CompletionEquals');
-      expect(stepDef.getName()).to.equal('Check OpenAI GPT prompt response from completion');
-      expect(stepDef.getExpression()).to.equal('OpenAI model (?<model>[a-zA-Z0-9_-.]+) response to "(?<prompt>[a-zA-Z0-9_ -\p{P}]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) ?(?<expectation>.+)?');
+      expect(stepDef.getStepId()).to.equal('CompletionTokenCost');
+      expect(stepDef.getName()).to.equal('Check OpenAI GPT prompt token cost given a prompt and model');
+      expect(stepDef.getExpression()).to.equal('OpenAI model (?<model>[a-zA-Z0-9_-]+) ?(?<type>.+)? token cost in response to "(?<prompt>[a-zA-Z0-9_ -]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) ?(?<expectation>.+)? tokens');
       expect(stepDef.getType()).to.equal(StepDefinition.Type.VALIDATION);
     });
 
@@ -41,30 +40,38 @@ describe('CompletionEquals', () => {
       expect(fields[1].optionality).to.equal(FieldDefinition.Optionality.REQUIRED);
       expect(fields[1].type).to.equal(FieldDefinition.Type.STRING);
 
-      expect(fields[2].key).to.equal('operator');
+      expect(fields[2].key).to.equal('type');
       expect(fields[2].optionality).to.equal(FieldDefinition.Optionality.OPTIONAL);
       expect(fields[2].type).to.equal(FieldDefinition.Type.STRING);
 
-      expect(fields[3].key).to.equal('expectation');
+      expect(fields[3].key).to.equal('operator');
       expect(fields[3].optionality).to.equal(FieldDefinition.Optionality.OPTIONAL);
       expect(fields[3].type).to.equal(FieldDefinition.Type.STRING);
+
+      expect(fields[4].key).to.equal('expectation');
+      expect(fields[4].optionality).to.equal(FieldDefinition.Optionality.OPTIONAL);
+      expect(fields[4].type).to.equal(FieldDefinition.Type.NUMERIC);
     });
   });
 
   describe('ExecuteStep', () => {
-    describe('GPT prompt response meets expectation', () => {
+    describe('GPT prompt response meets token cost expectation', () => {
       beforeEach(() => {
+        // Setup for the scenario where the GPT response meets the expected token cost
         const expectedModel: string = 'gpt-model';
-        const expectedPrompt: string = 'Hello, GPT!';
+        const expectedPrompt: string = 'What is 1 + 1?';
         protoStep.setData(Struct.fromJavaScript({
           model: expectedModel,
           prompt: expectedPrompt,
-          expectation: 'expected response',
+          type: 'completion',
           operator: 'be',
+          expectation: 1
         }));
 
         clientWrapperStub.getChatCompletion.returns(Promise.resolve({
-          choices: [{ message: { content: 'expected response' } }],
+          choices: [{ message: { content: 'two' } }],
+          usage: { completion_tokens: 1, prompt_tokens: 6, total_tokens: 7 },
+          created: '1698287166',
         }));
       });
 
@@ -74,19 +81,23 @@ describe('CompletionEquals', () => {
       });
     });
 
-    describe('GPT prompt response does not meet expectation', () => {
+    describe('GPT prompt response does not meet token cost expectation', () => {
       beforeEach(() => {
+        // Setup for the scenario where the GPT response does not meet the expected token cost
         const expectedModel: string = 'gpt-model';
-        const expectedPrompt: string = 'Hello, GPT!';
+        const expectedPrompt: string = 'Give me a five word response';
         protoStep.setData(Struct.fromJavaScript({
           model: expectedModel,
           prompt: expectedPrompt,
-          expectation: 'expected response',
-          operator: 'be',
+          type: 'completion',
+          operator: 'be less than',
+          expectation: 5
         }));
 
         clientWrapperStub.getChatCompletion.returns(Promise.resolve({
-          choices: [{ message: { content: 'unexpected response' } }],
+          choices: [{ message: { content: 'this is five word response' } }],
+          usage: { completion_tokens: 5, prompt_tokens: 6, total_tokens: 11 },
+          created: '1698287166',
         }));
       });
 
