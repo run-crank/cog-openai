@@ -1,0 +1,26 @@
+scenario: Ask for help regarding a device without providing a device name
+description: >
+  Test for ability to request for a device name or model when prompted with an ambiguous question about a device issue
+
+tokens:
+  test:
+    prompt: Assume you are a virtual assistant providing customer support for a tech company. 
+            I need assistance with my device.
+    modela: gpt-4-0613
+    modelb: gpt-4-1106-preview
+    modelc: gpt-4-0125-preview
+    expectation: Please provide your model or device name so I may further assist you.
+    operator: be greater than
+    semanticsimilarity: 0.2
+
+
+steps:
+- step: OpenAI model {{test.modela}} response to "{{test.prompt}}" semantically compared with "{{test.expectation}}" should {{test.operator}} {{test.semanticsimilarity}}
+  data:
+    __StepOrder: 1
+- step: OpenAI model {{model.b}} response to "{{test.prompt}}" semantically compared with "{{test.expectation}}" should {{test.operator}} {{test.semanticsimilarity}}
+  data:
+    __StepOrder: 2
+- step: OpenAI model {{model.c}} response to "{{test.prompt}}" semantically compared with "{{test.expectation}}" should {{test.operator}} {{test.semanticsimilarity}}
+  data:
+    __StepOrder: 3
