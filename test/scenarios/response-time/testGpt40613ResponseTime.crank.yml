@@ -1,0 +1,11 @@
+scenario: Test response time of Gpt 40613 model with a trivial prompt
+description: Asks a simple question to Gpt 40613 and checks if the response time is less than 1 second
+
+tokens:
+  test:
+    trivialPrompt: what is 1 plus 1
+    operator: be less than
+    responseTime: 1000
+    modela: gpt-4-0613
+steps:
+- step: OpenAI model {{test.modela}} response time in response to "{{test.trivialPrompt}}" should {{test.operator}} {{test.responseTime}} ms
