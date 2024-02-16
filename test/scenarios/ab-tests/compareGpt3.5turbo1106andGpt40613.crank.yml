@@ -8,18 +8,18 @@ tokens:
     prompt2: Describe nuclear power in simple terms to a middle school student.
     modela: gpt-3.5-turbo-1106
     modelb: gpt-4-0613
-    operator: be greater than
-    schoollevel: 8th & 9th grade
+    readabilityOperator: be greater than
+    schoolLevel: 8th & 9th grade
 steps:
-- step: OpenAI model {{test.modela}} school level of the response to "{{test.prompt1}}" should {{test.operator}} {{test.schoollevel}}
+- step: OpenAI model {{test.modela}} school level of the response to "{{test.prompt1}}" should {{test.readabilityOperator}} {{test.schoolLevel}}
   data:
     __stepOrder: 1
-- step: OpenAI model {{test.modelb}} school level of the response to "{{test.prompt1}}" should {{test.operator}} {{test.schoollevel}}
+- step: OpenAI model {{test.modelb}} school level of the response to "{{test.prompt1}}" should {{test.readabilityOperator}} {{test.schoolLevel}}
   data:
     __stepOrder: 2
-- step: OpenAI model {{test.modela}} school level of the response to "{{test.prompt2}}" should {{test.operator}} {{test.schoollevel}}
+- step: OpenAI model {{test.modela}} school level of the response to "{{test.prompt2}}" should {{test.readabilityOperator}} {{test.schoolLevel}}
   data:
     __stepOrder: 3
-- step: OpenAI model {{test.modelb}} school level of the response to "{{test.prompt2}}" should {{test.operator}} {{test.schoollevel}}
+- step: OpenAI model {{test.modelb}} school level of the response to "{{test.prompt2}}" should {{test.readabilityOperator}} {{test.schoolLevel}}
   data:
     __stepOrder: 4

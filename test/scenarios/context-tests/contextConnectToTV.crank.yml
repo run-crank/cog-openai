@@ -5,15 +5,15 @@ description: >
 tokens:
   test:
     prompt: Assume you are a tech support chatbot of Samsung. A customer sent a message that says 'How can I connect my windows laptop to my TV'
-    operator: contain
-    expectationA: HDMI cable
-    expectationB: Miracast
-    semanticsimilarity: 0.1
+    equalsOperator: contain
+    equalsExpectationA: HDMI cable
+    equalsExpectationB: Miracast
+    semanticSimilarity: 0.1
     model: gpt-4-1106-preview
 steps:
-- step: OpenAI model {{test.model}} response to "{{test.prompt}}" should {{test.operator}} {{test.expectationA}}
+- step: OpenAI model {{test.model}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectationA}}
   data:
     __stepOrder: 1
-- step: OpenAI model {{test.model}} response to "{{test.prompt}}" should {{test.operator}} {{test.expectationB}}
+- step: OpenAI model {{test.model}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectationB}}
   data:
     __stepOrder: 2

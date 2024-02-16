@@ -4,20 +4,21 @@ description: >
 
 tokens:
   test:
-    prompt: In 10 words or less, what is the name of the nearest star system to Earth?
+    prompt: What is the name of the nearest star system to Earth in one sentence?
     modela: gpt-4-1106-preview
     modelb: gpt-3.5-turbo-0125
-    equalOperator: contain
-    expectation: Alpha Centauri
-    operator: be greater than
-    semanticsimilarity: 0.5
+    equalsOperator: contain
+    equalsExpectation: Alpha Centauri
+    semanticSimilarityOperator: be greater than
+    semanticSimilarityExpectation: The nearest star system to Earth is Alpha Centauri.
+    semanticSimilarity: 0.5
 steps:
-- step: OpenAI model {{test.modela}} and {{test.modelb}} responses to "{{test.prompt}}" should {{test.equalOperator}} {{test.expectation}}
+- step: OpenAI model {{test.modela}} and {{test.modelb}} responses to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
   data:
     __stepOrder: 1
-- step: OpenAI model {{test.modela}} response to "{{test.prompt}}" semantically compared with "{{test.expectation}}" should {{test.operator}} {{test.semanticsimilarity}}
+- step: OpenAI model {{test.modela}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
   data:
     __stepOrder: 2
-- step: OpenAI model {{test.modelb}} response to "{{test.prompt}}" semantically compared with "{{test.expectation}}" should {{test.operator}} {{test.semanticsimilarity}}
+- step: OpenAI model {{test.modelb}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
   data:
     __stepOrder: 3

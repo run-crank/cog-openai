@@ -5,15 +5,15 @@ description: >
 tokens:
   test:
     prompt: Assume you are a customer service agent of gas station and can respond within only 3 sentences. The customer asks 'What kind of fuel should I use for my car?'
-    compareText: please check your owner's manual or look for a label inside your fuel door for the manufacturer's recommendation.
-    operator: contain
-    expectation: diesel
-    semanticsimilarity: 0.1
+    semanticSimilarityExpectation: please check your owner's manual or look for a label inside your fuel door for the manufacturer's recommendation.
+    equalsOperator: contain
+    equalsExpectation: diesel
+    semanticSimilarity: 0.1
     model: gpt-4-1106-preview
 steps:
-  - step: OpenAI model {{test.model}} response to "{{test.prompt}}" semantically compared with "{{test.compareText}}" should be greater than {{test.semanticsimilarity}}
+  - step: OpenAI model {{test.model}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should be greater than {{test.semanticSimilarity}}
     data:
       __stepOrder: 1
-  - step: OpenAI model {{test.model}} response to "{{test.prompt}}" should {{test.operator}} {{test.expectation}}
+  - step: OpenAI model {{test.model}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
     data:
       __stepOrder: 2

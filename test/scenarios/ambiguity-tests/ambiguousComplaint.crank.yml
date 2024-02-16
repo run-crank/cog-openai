@@ -10,19 +10,19 @@ tokens:
     modela: gpt-4-0613
     modelb: gpt-4-1106-preview
     modelc: gpt-4-0125-preview
-    expectation:
+    semanticSimilarityExpectation:
       I'm sorry to hear that. Could you please provide more details about the issue so I may further assist you?
       Your satisfaction is important to us and we would like to address your concerns.
-    operator: be greater than
-    semanticsimilarity: 0.2
+    semanticSimilarityOperator: be greater than
+    semanticSimilarity: 0.2
 
 steps:
-  - step: OpenAI model {{test.modela}} response to "{{test.prompt}}" semantically compared with "{{test.expectation}}" should {{test.operator}} {{test.semanticsimilarity}}
+  - step: OpenAI model {{test.modela}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
     data:
       __StepOrder: 1
-  - step: OpenAI model {{model.b}} response to "{{test.prompt}}" semantically compared with "{{test.expectation}}" should {{test.operator}} {{test.semanticsimilarity}}
+  - step: OpenAI model {{model.b}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
     data:
       __StepOrder: 2
-  - step: OpenAI model {{model.c}} response to "{{test.prompt}}" semantically compared with "{{test.expectation}}" should {{test.operator}} {{test.semanticsimilarity}}
+  - step: OpenAI model {{model.c}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
     data:
       __StepOrder: 3

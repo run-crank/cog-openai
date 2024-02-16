@@ -10,18 +10,18 @@ tokens:
     modela: gpt-4-0613
     modelb: gpt-4-1106-preview
     modelc: gpt-4-0125-preview
-    expectation: B
-    operator: be
+    equalsExpectation: B
+    equalsOperator: be
     
 
 steps:
-- step: OpenAI model {{test.modela}} response to "{{test.prompt}}" should {{test.operator}} {{test.expectation}}
+- step: OpenAI model {{test.modela}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
   data:
     __StepOrder: 1
-- step: OpenAI model {{test.modelb}} response to "{{test.prompt}}" should {{test.operator}} {{test.expectation}}
+- step: OpenAI model {{test.modelb}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
   data:
     __StepOrder: 2
-- step: OpenAI model {{test.modelc}} response to "{{test.prompt}}" should {{test.operator}} {{test.expectation}}
+- step: OpenAI model {{test.modelc}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
   data:
     __StepOrder: 3
 

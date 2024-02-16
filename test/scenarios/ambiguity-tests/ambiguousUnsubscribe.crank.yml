@@ -5,16 +5,16 @@ description: >
 tokens:
   test:
     prompt: Assume you are a customer service chatbot of coding academy and only respond in 2 sentences. The customer has four children enrolled in the academy and would like to cancel the subscription for a son.
-    compareText: provide with the full name and username of the son
-    operator: contain
-    expectation: name
-    semanticsimilarity: 0.1
+    semanticSimilarityExpectation: provide with the full name and username of the son
+    equalsOperator: contain
+    equalsExpectation: name
+    semanticSimilarity: 0.1
     model: gpt-4-1106-preview
 
 steps:
-  - step: OpenAI model {{test.model}} response to "{{test.prompt}}" semantically compared with "{{test.compareText}}" should be greater than {{test.semanticsimilarity}}
+  - step: OpenAI model {{test.model}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should be greater than {{test.semanticSimilarity}}
     data:
       __stepOrder: 1
-  - step: OpenAI model {{test.model}} response to "{{test.prompt}}" should {{test.operator}} {{test.expectation}}
+  - step: OpenAI model {{test.model}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
     data:
       __stepOrder: 2

@@ -8,7 +8,7 @@ tokens:
     modelb: gpt-3.5-turbo-1106
     modela: gpt-4-0125-preview
     readabilityOperator: be greater than
-    schoollevel: 8th & 9th grade
+    schoolLevel: 8th & 9th grade
     equalsOperator: match
     equalsExpectation: reason | order number
 

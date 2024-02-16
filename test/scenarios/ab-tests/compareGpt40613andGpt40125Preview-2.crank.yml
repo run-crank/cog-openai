@@ -8,16 +8,16 @@ tokens:
     modela: gpt-4-0613
     modelb: gpt-4-0125-preview
     readabilityOperator: be greater than
-    schoollevel: 7th grade
+    schoolLevel: 8th & 9th grade
     semanticSimilarityExpectation: Gravity is a force that pulls objects with mass towards each other.
     semanticSimilarityOperator: be greater than
     semanticSimilarity: 0.5
     
 steps:
-- step: OpenAI model {{test.modela}} school level of the response to "{{test.prompt}}" should {{test.readabilityOperator}} {{test.schoolevel}}
+- step: OpenAI model {{test.modela}} school level of the response to "{{test.prompt}}" should {{test.readabilityOperator}} {{test.schoolLevel}}
   data:
     __stepOrder: 1
-- step: OpenAI model {{test.modelb}} school level of the response to "{{test.prompt}}" should {{test.readabilityOperator}} {{test.schoollevel}}
+- step: OpenAI model {{test.modelb}} school level of the response to "{{test.prompt}}" should {{test.readabilityOperator}} {{test.schoolLevel}}
   data:
     __stepOrder: 2
 - step: OpenAI model {{test.modela}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}

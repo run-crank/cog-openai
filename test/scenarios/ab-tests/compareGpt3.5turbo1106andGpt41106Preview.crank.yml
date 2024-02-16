@@ -8,14 +8,14 @@ tokens:
     modela: gpt-3.5-turbo-1106
     modelb: gpt-4-1106-preview
     readabilityOperator: be greater than
-    schoollevel: 10th to 12th grade
+    schoolLevel: 10th to 12th grade
     wordCountOperator: be less than
     wordCountExpectation: 100
 steps:
-- step: OpenAI model {{test.modela}} school level of the response to "{{test.prompt}}" should {{test.readabilityOperator}} {{test.schoollevel}}
+- step: OpenAI model {{test.modela}} school level of the response to "{{test.prompt}}" should {{test.readabilityOperator}} {{test.schoolLevel}}
   data:
     __stepOrder: 1
-- step: OpenAI model {{test.modelb}} school level of the response to "{{test.prompt}}" should {{test.readabilityOperator}} {{test.schoollevel}}
+- step: OpenAI model {{test.modelb}} school level of the response to "{{test.prompt}}" should {{test.readabilityOperator}} {{test.schoolLevel}}
   data:
     __stepOrder: 2
 - step: OpenAI model {{test.modela}} word count in a response to "{{test.prompt}}" should {{test.wordCountOperator}} {{test.wordCountExpectation}}

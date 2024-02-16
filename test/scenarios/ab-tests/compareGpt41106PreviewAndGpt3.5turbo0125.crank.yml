@@ -7,18 +7,18 @@ tokens:
     prompt: An optimization algorithm is used to minimize the cost function in linear regression. It iteratively updates the model's parameters by computing the partial derivatives of the cost function with respect to each parameter and adjusting them in the opposite direction of the gradient. In less than 10 words, what is the name of this algorithm?
     modela: gpt-4-1106-preview
     modelb: gpt-3.5-turbo-0125
-    equalOperator: contain
-    equalExpectation: gradient descent
-    expectation: The name of the algorithm is Gradient Descent
-    operator: be greater than
-    semanticsimilarity: 0.2
+    equalsOperator: contain
+    equalsExpectation: gradient descent
+    semanticSimilarityExpectation: The name of the algorithm is Gradient Descent
+    semanticSimilarityOperator: be greater than
+    semanticSimilarity: 0.2
 steps:
-- step: OpenAI model {{test.modela}} and {{test.modelb}} responses to "{{test.prompt}}" should {{test.equalOperator}} {{test.equalExpectation}}
+- step: OpenAI model {{test.modela}} and {{test.modelb}} responses to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
   data:
     __stepOrder: 1
-- step: OpenAI model {{test.modela}} response to "{{test.prompt}}" semantically compared with "{{test.expectation}}" should {{test.operator}} {{test.semanticsimilarity}}
+- step: OpenAI model {{test.modela}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
   data:
     __stepOrder: 2
-- step: OpenAI model {{test.modelb}} response to "{{test.prompt}}" semantically compared with "{{test.expectation}}" should {{test.operator}} {{test.semanticsimilarity}}
+- step: OpenAI model {{test.modelb}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
   data:
     __stepOrder: 3

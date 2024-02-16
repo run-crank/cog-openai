@@ -8,21 +8,21 @@ tokens:
     modela: gpt-4-0613
     modelb: gpt-4-1106-preview
     modelc: gpt-4-0125-preview
-    expectation: I recommend a balanced diet rich in whole foods like fruits, vegetables, lean proteins, and whole grains. Additionally, reducing intake of processed foods, 
+    semanticSimilarityExpectation: I recommend a balanced diet rich in whole foods like fruits, vegetables, lean proteins, and whole grains. Additionally, reducing intake of processed foods, 
                                         high-sugar items, unhealthy fats, and excessive caffeine or alcohol is crucial for preventing various health issues, including heart disease, diabetes, and obesity.
 
-    semanticsimilarity: 0.3
-    operator: be greater than
+    semanticSimilarity: 0.3
+    semanticSimilarityOperator: be greater than
     
 
 steps:
-- step: OpenAI model {{test.modela}} response to "{{test.prompt}}" semantically compared with "{{test.expectation}}" should {{test.operator}} {{test.semanticsimilarity}}
+- step: OpenAI model {{test.modela}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
   data:
     __StepOrder: 1
-- step: OpenAI model {{test.modelb}} response to "{{test.prompt}}" semantically compared with "{{test.expectation}}" should {{test.operator}} {{test.semanticsimilarity}}
+- step: OpenAI model {{test.modelb}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
   data:
     __StepOrder: 2
-- step: OpenAI model {{test.modelc}} response to "{{test.prompt}}" semantically compared with "{{test.expectation}}" should {{test.operator}} {{test.semanticsimilarity}}
+- step: OpenAI model {{test.modelc}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
   data:
     __StepOrder: 3
 

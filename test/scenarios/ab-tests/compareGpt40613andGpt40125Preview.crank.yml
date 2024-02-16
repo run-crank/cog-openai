@@ -7,16 +7,16 @@ tokens:
     prompt: In one word, what is the view which deny claims to objectivity within a particular domain and assert that valuations in that domain are relative to the perspective of an observer or the context in which they are assessed?
     modela: gpt-4-0613
     modelb: gpt-4-0125-preview
-    operator: be
-    equalExpectation: Relativism
+    equalsOperator: be
+    equalsExpectation: Relativism
     wordCountExpectation: 1
 steps:
-- step: OpenAI model {{test.modela}} and {{test.modelb}} responses to "{{test.prompt}}" should {{test.operator}} {{test.equalExpectation}}
+- step: OpenAI model {{test.modela}} and {{test.modelb}} responses to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
   data:
     __stepOrder: 1
-- step: OpenAI model {{test.modela}} word count in a response to "{{test.prompt}}" should {{test.operator}} {{test.wordCountExpectation}}
+- step: OpenAI model {{test.modela}} word count in a response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.wordCountExpectation}}
   data:
     __stepOrder: 2
-- step: OpenAI model {{test.modelb}} word count in a response to "{{test.prompt}}" should {{test.operator}} {{test.wordCountExpectation}}
+- step: OpenAI model {{test.modelb}} word count in a response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.wordCountExpectation}}
   data:
     __stepOrder: 3

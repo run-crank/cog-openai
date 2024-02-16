@@ -8,18 +8,18 @@ tokens:
     modela: gpt-4-0613
     modelb: gpt-4-1106-preview
     modelc: gpt-4-0125-preview
-    expectation: boiling point = 100 degrees Celsius freezing point = 0 degrees Celsius
-    semanticsimilarity: 0.5
-    operator: be greater than
+    semanticSimilarityExpectation: boiling point = 100 degrees Celsius freezing point = 0 degrees Celsius
+    semanticSimilarity: 0.5
+    semanticSimilarityOperator: be greater than
 
 steps:
-- step: OpenAI model {{test.modela}} response to "{{test.prompt}}" semantically compared with "{{test.expectation}}" should {{test.operator}} {{test.semanticsimilarity}}
+- step: OpenAI model {{test.modela}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
   data:
     __StepOrder: 1
-- step: OpenAI model {{test.modelb}} response to "{{test.prompt}}" semantically compared with "{{test.expectation}}" should {{test.operator}} {{test.semanticsimilarity}}
+- step: OpenAI model {{test.modelb}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
   data:
     __StepOrder: 2
-- step: OpenAI model {{test.modelc}} response to "{{test.prompt}}" semantically compared with "{{test.expectation}}" should {{test.operator}} {{test.semanticsimilarity}}
+- step: OpenAI model {{test.modelc}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
   data:
     __StepOrder: 3
 

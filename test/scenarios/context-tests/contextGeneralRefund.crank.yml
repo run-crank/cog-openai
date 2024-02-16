@@ -5,15 +5,15 @@ description: >
 tokens:
   test:
     prompt: Customer says "I have been using iPhone 10 and AirPods 1 so far, and recently, I used the latest MacBook. However, I am extremely disappointed with the performance of this MacBook, and the program execution speed is much slower than advertised. Additionally, a dent near the charging port, which seems to have occurred during the delivery process, has been discovered. Unfortunately, I have no intention of using this product. Furthermore, it has not been three days since the purchase date. I am attaching my order number and credit card information here." How many Apple devices has this person purchased in total, and what is the intention behind writing this post?" answer in 2-3 sentences.
-    operatorA: contain
-    expectation: three
-    compareText: likely seek a resolution such as a return, exchange, or repair since the purchase was made recently. 
-    semanticsimilarity: 0.1
+    equalsOperator: contain
+    equalsExpectation: three
+    semanticSimilarityExpectation: likely seek a resolution such as a return, exchange, or repair since the purchase was made recently. 
+    semanticSimilarity: 0.1
     model: gpt-4-1106-preview
 steps:
-- step: OpenAI model {{test.model}} response to "{{test.prompt}}" semantically compared with "{{test.compareText}}" should be greater than {{test.semanticsimilarity}}
+- step: OpenAI model {{test.model}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should be greater than {{test.semanticSimilarity}}
   data:
     __stepOrder: 1
-- step: OpenAI model {{test.model}} response to "{{test.prompt}}" should {{test.operatorA}} {{test.expectation}}
+- step: OpenAI model {{test.model}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
   data:
     __stepOrder: 2

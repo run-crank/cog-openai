@@ -8,18 +8,18 @@ tokens:
     modela: gpt-4-0613
     modelb: gpt-4-1106-preview
     modelc: gpt-4-0125-preview
-    semanticSimilarityExpectedContent: The new MacBook Air comes with storage options ranging from 256GB to 2TB depending on the configuration you choose.
-    operator: be greater than
-    semanticSimilarityExpectation: 0.5  
+    semanticSimilarityExpectation: The new MacBook Air comes with storage options ranging from 256GB to 2TB depending on the configuration you choose.
+    semanticSimilarityOperator: be greater than
+    semanticSimilarity: 0.5  
 
 steps:
-- step: OpenAI model {{test.modela}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectedContent}}" should {{test.operator}} {{test.semanticSimilarityExpectation}}
+- step: OpenAI model {{test.modela}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarityExpectation}}
   data:
     __StepOrder: 1
-- step: OpenAI model {{test.modelb}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectedContent}}" should {{test.operator}} {{test.semanticSimilarityExpectation}}
+- step: OpenAI model {{test.modelb}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarityExpectation}}
   data:
     __StepOrder: 2
-- step: OpenAI model {{test.modelc}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectedContent}}" should {{test.operator}} {{test.semanticSimilarityExpectation}}
+- step: OpenAI model {{test.modelc}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarityExpectation}}
   data:
     __StepOrder: 3
 

@@ -5,11 +5,11 @@ tokens:
   test:
     prompt: Hello! I'm a 15-year-old student handling banking transactions for the first time. I'm using the ATM for the first time, and I want to deposit money into my account. Which option on the screen should I tap? Answer in one word
     compareText: it's a reasonable guess that your new phone is an iPhone.
-    operator: contain
-    expectation: Deposit
-    semanticsimilarity: 0.1
+    equalsOperator: contain
+    equalsExpectation: Deposit
+    semanticSimilarity: 0.1
     model: gpt-4-1106-preview
 steps:
-- step: OpenAI model {{test.model}} response to "{{test.prompt}}" should {{test.operator}} {{test.expectation}}
+- step: OpenAI model {{test.model}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
   data:
     __stepOrder: 2
