@@ -1,0 +1,20 @@
+scenario: Contextual Comprehension Test with  Context
+description: >
+  Evaluate the model's ability to provide accurate responses in Apple tech support by discerning a customer's inquiry about checking the iOS version on an iPhone.
+  
+
+tokens:
+  test:
+    prompt: Assume you are a tech support chatbot of Apple. A customer sent a message that says 'How can I check my IOS version on my Iphone'
+    operator: contain
+    compareText: Open the "Settings" app on your iPhone. Scroll down and tap on "General."
+    expectation: Software Version
+    semanticsimilarity: 0.1
+    model: gpt-4-1106-preview
+steps:
+- step: OpenAI model {{test.model}} response to "{{test.prompt}}" semantically compared with "{{test.compareText}}" should be greater than {{test.semanticsimilarity}}
+  data:
+    __stepOrder: 1
+- step: OpenAI model {{test.model}} response to "{{test.prompt}}" should {{test.operator}} {{test.expectation}}
+  data:
+    __stepOrder: 2

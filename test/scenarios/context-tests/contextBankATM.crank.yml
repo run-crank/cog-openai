@@ -1,0 +1,15 @@
+scenario: Contextual Comprehension Test in Banking Assistance for Banking Customer Service Chatbot
+description: >
+  Evaluate the model's ability to understand and respond to contextual cues in a scenario where a 15-year-old student is using an ATM for the first time and seeks guidance on depositing money. The aim is to assess the model's capacity to provide a clear and concise response within the given context.
+tokens:
+  test:
+    prompt: Hello! I'm a 15-year-old student handling banking transactions for the first time. I'm using the ATM for the first time, and I want to deposit money into my account. Which option on the screen should I tap? Answer in one word
+    compareText: it's a reasonable guess that your new phone is an iPhone.
+    operator: contain
+    expectation: Deposit
+    semanticsimilarity: 0.1
+    model: gpt-4-1106-preview
+steps:
+- step: OpenAI model {{test.model}} response to "{{test.prompt}}" should {{test.operator}} {{test.expectation}}
+  data:
+    __stepOrder: 2
