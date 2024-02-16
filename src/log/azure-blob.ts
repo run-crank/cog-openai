@@ -1,5 +1,3 @@
-import { OpenAIBlobContainer } from './openai-azure-blob-container';
-
 export class AzureBlob {
     private timestamp: string;
     private content: object;

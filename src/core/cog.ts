@@ -6,11 +6,11 @@ import { ClientWrapper } from '../client/client-wrapper';
 import { ICogServiceServer } from '../proto/cog_grpc_pb';
 import { ManifestRequest, CogManifest, Step, RunStepRequest, RunStepResponse, FieldDefinition, StepDefinition } from '../proto/cog_pb';
 import { AzureBlob } from '../log/azure-blob';
-import { OpenAIBlobContainer } from '../log/openai-azure-blob-container';
+import { AzureBlobContainer } from '../log/azure-blob-container';
 
 export class Cog implements ICogServiceServer {
   private steps: StepInterface[];
-  private blobContainer: OpenAIBlobContainer = new OpenAIBlobContainer()
+  private blobContainer: AzureBlobContainer = new AzureBlobContainer("openai-cog-logs")
 
   constructor(private clientWrapperClass, private stepMap: Record<string, any> = {}) {
     // Dynamically reads the contents of the ./steps folder for step definitions and makes the
@@ -109,16 +109,17 @@ export class Cog implements ICogServiceServer {
       // If this was the last step to process and the client has ended the stream, then end our
       // stream as well.
       if (processing === 0 && clientEnded) {
+        await this.exportToAzureBlobStorage(blobContent);
         call.end();
       }
     });
 
-    call.on('end', () => {
+    call.on('end', async () => {
       clientEnded = true;
-      this.exportToAzureBlobStorage(blobContent);
-
+    
       // Only end the stream if we are done processing all steps.
       if (processing === 0) {
+        await this.exportToAzureBlobStorage(blobContent);
         call.end();
       }
     });
@@ -135,7 +136,7 @@ export class Cog implements ICogServiceServer {
     const step: Step = call.request.getStep();
     const response: RunStepResponse = await this.dispatchStep(step, call.metadata);
     const blobContent = this.constructBlobContent(response);
-    this.exportToAzureBlobStorage(blobContent);
+    await this.exportToAzureBlobStorage(blobContent);
     callback(null, response);
   }
 
@@ -198,9 +199,9 @@ export class Cog implements ICogServiceServer {
     return blobContent;
   }
 
-  private exportToAzureBlobStorage(content: object) {
+  private async exportToAzureBlobStorage(content: object) {
     const blob = new AzureBlob(content);
-    this.blobContainer.uploadBlob(blob);
+    await this.blobContainer.uploadBlob(blob);
   }
 
 }

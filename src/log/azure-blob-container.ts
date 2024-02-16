@@ -3,14 +3,19 @@ import { AzureBlob } from "./azure-blob";
 import * as dotenv from "dotenv";
 dotenv.config();
 
-export abstract class AzureBlobContainer {
+export class AzureBlobContainer {
     private accountName: string = process.env.AZURE_BLOB_STORAGE_ACCOUNT_NAME;
     private accountKey: string = process.env.AZURE_BLOB_STORAGE_ACCOUNT_KEY;
-    protected connectionString: string = `DefaultEndpointsProtocol=https;AccountName=${this.accountName};AccountKey=${this.accountKey};EndpointSuffix=core.windows.net`;
-    protected blobServiceClient: BlobServiceClient;
-    protected containerClient: ContainerClient;
+    private connectionString: string = `DefaultEndpointsProtocol=https;AccountName=${this.accountName};AccountKey=${this.accountKey};EndpointSuffix=core.windows.net`;
+    private blobServiceClient: BlobServiceClient;
+    private containerClient: ContainerClient;
+    private containerName: string;
 
-    constructor() {}
+    constructor(containerName: string) {
+        this.containerName = containerName;
+        this.blobServiceClient = BlobServiceClient.fromConnectionString(this.connectionString);
+        this.containerClient = this.blobServiceClient.getContainerClient(this.containerName);
+    }
 
     async uploadBlob(blob: AzureBlob) {
         const data = blob.getBlobData();
