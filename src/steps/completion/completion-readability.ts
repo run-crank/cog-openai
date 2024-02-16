@@ -162,6 +162,7 @@ export class CompletionReadability extends BaseStep implements StepInterface {
         created: completion.created,
       };
       const records = this.createRecords(returnObj, stepData.__stepOrder);
+
       return result.valid ? this.pass(result.message, [], records) : this.fail(result.message, [], records);
     } catch (e) {
       if (e instanceof util.UnknownOperatorError) {

@@ -6,13 +6,17 @@ import { Field, StepInterface } from './base-step';
 
 import { ClientWrapper } from '../client/client-wrapper';
 import { ICogServiceServer } from '../proto/cog_grpc_pb';
-import { ManifestRequest, CogManifest, Step, RunStepRequest, RunStepResponse, FieldDefinition,
-  StepDefinition } from '../proto/cog_pb';
+import {
+  ManifestRequest, CogManifest, Step, RunStepRequest, RunStepResponse, FieldDefinition,
+  StepDefinition,
+  TableRecord
+} from '../proto/cog_pb';
+import { AzureBlob } from '../log/azure-blob';
 
 export class Cog implements ICogServiceServer {
   private steps: StepInterface[];
 
-  constructor (private clientWrapperClass, private stepMap: Record<string, any> = {}) {
+  constructor(private clientWrapperClass, private stepMap: Record<string, any> = {}) {
     // Dynamically reads the contents of the ./steps folder for step definitions and makes the
     // corresponding step classes available on this.steps and this.stepMap.
     // tslint:disable-next-line:max-line-length
@@ -21,16 +25,16 @@ export class Cog implements ICogServiceServer {
 
   private getSteps(dir: string, clientWrapperClass) {
     const steps = fs.readdirSync(dir, { withFileTypes: true })
-    .map((file: fs.Dirent) => {
-      if (file.isFile() && (file.name.endsWith('.ts') || file.name.endsWith('.js'))) {
-        const step = require(`${dir}/${file.name}`).Step;
-        const stepInstance: StepInterface = new step(clientWrapperClass);
-        this.stepMap[stepInstance.getId()] = step;
-        return stepInstance;
-      } if (file.isDirectory()) {
-        return this.getSteps(`${__dirname}/../steps/${file.name}`, clientWrapperClass);
-      }
-    });
+      .map((file: fs.Dirent) => {
+        if (file.isFile() && (file.name.endsWith('.ts') || file.name.endsWith('.js'))) {
+          const step = require(`${dir}/${file.name}`).Step;
+          const stepInstance: StepInterface = new step(clientWrapperClass);
+          this.stepMap[stepInstance.getId()] = step;
+          return stepInstance;
+        } if (file.isDirectory()) {
+          return this.getSteps(`${__dirname}/../steps/${file.name}`, clientWrapperClass);
+        }
+      });
 
     // Note: this filters out files that do not match the above (e.g. READMEs
     // or .js.map files in built folder, etc).
@@ -97,8 +101,11 @@ export class Cog implements ICogServiceServer {
 
       const step: Step = runStepRequest.getStep();
       const response: RunStepResponse = await this.dispatchStep(step, call.metadata, client);
-      call.write(response);
 
+      console.log(response.toObject());
+      this.exportToAzureBlobStorage(response);
+
+      call.write(response);
       processing = processing - 1;
 
       // If this was the last step to process and the client has ended the stream, then end our
@@ -128,6 +135,7 @@ export class Cog implements ICogServiceServer {
   ) {
     const step: Step = call.request.getStep();
     const response: RunStepResponse = await this.dispatchStep(step, call.metadata);
+    // console.log('Sending response:', response.toObject());
     callback(null, response);
   }
 
@@ -168,6 +176,22 @@ export class Cog implements ICogServiceServer {
    */
   private instantiateClient(auth: grpc.Metadata): ClientWrapper {
     return new this.clientWrapperClass(auth);
+  }
+
+  private exportToAzureBlobStorage(response: RunStepResponse) {
+    let blobContent: { [key: string]: any } = {};
+
+    const records = response.getRecordsList();
+
+    records.forEach(record => {
+      const keyValue = (record.getKeyValue() || new Struct()).toJavaScript()
+      const keys = Object.keys(keyValue)
+      keys.forEach(key => {
+        blobContent[key] = keyValue[key]
+      })
+    })
+
+    console.log('Blob Content:', blobContent);
   }
 
 }
