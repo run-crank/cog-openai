@@ -1,0 +1,25 @@
+scenario: Compare Gpt 40613 And Gpt 41106 Preview
+description: >
+  Compare gpt-4-turbo with gpt-4
+
+tokens:
+  test:
+    prompt: Describe US Politics to 5th grader in one paragraph.
+    operator: be greater than
+    schoollevel: 5th grade
+    semanticsimilarity: 0.7
+    modela: gpt-4-0613
+    modelb: gpt-4-1106-preview
+steps:
+- step: OpenAI model {{test.modela}} school level of the response to "{{test.prompt}}" should {{test.operator}} {{test.schoollevel}}
+  data:
+    __stepOrder: 1
+- step: OpenAI model {{test.modelb}} school level of the response to "{{test.prompt}}" should {{test.operator}} {{test.schoollevel}}
+  data:
+    __stepOrder: 2
+- step: OpenAI model {{test.modela}} response to "What is the capital of Canada" semantically compared with "The capital of Canada is Ottawa" should {{test.operator}} {{test.semanticsimilarity}}
+  data:
+    __stepOrder: 3
+- step: OpenAI model {{test.modelb}} response to "What is the capital of Canada" semantically compared with "The capital of Canada is Ottawa" should be greater than {{test.semanticsimilarity}}
+  data:
+    __stepOrder: 4
