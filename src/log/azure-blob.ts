@@ -2,9 +2,9 @@ import { OpenAIBlobContainer } from './openai-azure-blob-container';
 
 export class AzureBlob {
     private timestamp: string;
-    private content: string;
+    private content: object;
 
-    constructor(content: string) {
+    constructor(content: object) {
         this.timestamp = new Date().toISOString();
         this.content = content;
     }

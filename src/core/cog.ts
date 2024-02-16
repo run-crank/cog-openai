@@ -1,20 +1,16 @@
 import * as grpc from '@grpc/grpc-js';
 import { Struct, Value } from 'google-protobuf/google/protobuf/struct_pb';
 import * as fs from 'fs';
-
 import { Field, StepInterface } from './base-step';
-
 import { ClientWrapper } from '../client/client-wrapper';
 import { ICogServiceServer } from '../proto/cog_grpc_pb';
-import {
-  ManifestRequest, CogManifest, Step, RunStepRequest, RunStepResponse, FieldDefinition,
-  StepDefinition,
-  TableRecord
-} from '../proto/cog_pb';
+import { ManifestRequest, CogManifest, Step, RunStepRequest, RunStepResponse, FieldDefinition, StepDefinition } from '../proto/cog_pb';
 import { AzureBlob } from '../log/azure-blob';
+import { OpenAIBlobContainer } from '../log/openai-azure-blob-container';
 
 export class Cog implements ICogServiceServer {
   private steps: StepInterface[];
+  private blobContainer: OpenAIBlobContainer = new OpenAIBlobContainer()
 
   constructor(private clientWrapperClass, private stepMap: Record<string, any> = {}) {
     // Dynamically reads the contents of the ./steps folder for step definitions and makes the
@@ -95,15 +91,17 @@ export class Cog implements ICogServiceServer {
     const client = this.instantiateClient(call.metadata);
     let processing = 0;
     let clientEnded = false;
+    let blobContent = { steps: [] };
+    let stepOrder = 0;
 
     call.on('data', async (runStepRequest: RunStepRequest) => {
       processing = processing + 1;
+      stepOrder = stepOrder + 1;
 
       const step: Step = runStepRequest.getStep();
       const response: RunStepResponse = await this.dispatchStep(step, call.metadata, client);
 
-      console.log(response.toObject());
-      this.exportToAzureBlobStorage(response);
+      blobContent.steps.push(this.constructBlobContent(response, stepOrder));
 
       call.write(response);
       processing = processing - 1;
@@ -117,6 +115,7 @@ export class Cog implements ICogServiceServer {
 
     call.on('end', () => {
       clientEnded = true;
+      this.exportToAzureBlobStorage(blobContent);
 
       // Only end the stream if we are done processing all steps.
       if (processing === 0) {
@@ -135,7 +134,8 @@ export class Cog implements ICogServiceServer {
   ) {
     const step: Step = call.request.getStep();
     const response: RunStepResponse = await this.dispatchStep(step, call.metadata);
-    // console.log('Sending response:', response.toObject());
+    const blobContent = this.constructBlobContent(response);
+    this.exportToAzureBlobStorage(blobContent);
     callback(null, response);
   }
 
@@ -178,8 +178,12 @@ export class Cog implements ICogServiceServer {
     return new this.clientWrapperClass(auth);
   }
 
-  private exportToAzureBlobStorage(response: RunStepResponse) {
-    let blobContent: { [key: string]: any } = {};
+  private constructBlobContent(response: RunStepResponse, stepOrder: number = 1) {
+    let blobContent = {
+      stepOrder: stepOrder,
+      outcome: response.getOutcome(),
+      message: response.getMessageFormat()
+    };
 
     const records = response.getRecordsList();
 
@@ -191,7 +195,12 @@ export class Cog implements ICogServiceServer {
       })
     })
 
-    console.log('Blob Content:', blobContent);
+    return blobContent;
+  }
+
+  private exportToAzureBlobStorage(content: object) {
+    const blob = new AzureBlob(content);
+    this.blobContainer.uploadBlob(blob);
   }
 
 }

@@ -29,8 +29,16 @@ export abstract class AzureBlobContainer {
             blobList.push(blob.name);
         }
 
-        console.log(blobList);
         return blobList;
+    }
+
+    async getBlobByBlobName(blobName: string): Promise<string>{
+        const blockBlobClient = this.containerClient.getBlockBlobClient(blobName);
+
+        const downloadResponse = await blockBlobClient.download(0);
+        const downloadedContent = await this.streamToString(downloadResponse.readableStreamBody);
+
+        return downloadedContent;
     }
 
     async deleteBlob(blobName: string) {
@@ -39,5 +47,18 @@ export abstract class AzureBlobContainer {
         await blockBlobClient.delete();
 
         console.log(`Blob "${blobName}" deleted from Azure Blob Storage.`);
+    }
+
+    private async streamToString(readableStream: NodeJS.ReadableStream): Promise<string> {
+        return new Promise((resolve, reject) => {
+            const chunks: any[] = [];
+            readableStream.on("data", (data) => {
+                chunks.push(data.toString());
+            });
+            readableStream.on("end", () => {
+                resolve(chunks.join(""));
+            });
+            readableStream.on("error", reject);
+        });
     }
 }
