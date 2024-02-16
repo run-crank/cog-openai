@@ -1,18 +1,16 @@
-scenario: Make a complaint about a service without specifying the complaint
+scenario: Ask for help regarding an order without providing an order number
 description: >
-  Test for ability to understand the context of a complaint and request for more details
-  when prompted with an ambiguous complaint
+  Test for ability to request for an order number when prompted with an ambiguous question about an order
 
 tokens:
   test:
-    prompt: Assume you're a virtual assistant for a tech company.
-      A user states that they're not satisfied with the service.
+    prompt:
+      Assume you are a virtual assistant providing customer support for an online retailer.
+      I need assistance with my order.
     modela: gpt-4-0613
     modelb: gpt-4-1106-preview
     modelc: gpt-4-0125-preview
-    expectation:
-      I'm sorry to hear that. Could you please provide more details about the issue so I may further assist you?
-      Your satisfaction is important to us and we would like to address your concerns.
+    expectation: Please provide your order number so I may further assist you.
     operator: be greater than
     semanticsimilarity: 0.2
 

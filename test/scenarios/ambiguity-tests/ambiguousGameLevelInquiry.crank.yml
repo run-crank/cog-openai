@@ -13,14 +13,13 @@ tokens:
     operator: be greater than
     semanticsimilarity: 0.2
 
-
 steps:
-- step: OpenAI model {{test.modela}} response to "{{test.prompt}}" semantically compared with "{{test.expectation}}" should {{test.operator}} {{test.semanticsimilarity}}
-  data:
-    __StepOrder: 1
-- step: OpenAI model {{model.b}} response to "{{test.prompt}}" semantically compared with "{{test.expectation}}" should {{test.operator}} {{test.semanticsimilarity}}
-  data:
-    __StepOrder: 2
-- step: OpenAI model {{model.c}} response to "{{test.prompt}}" semantically compared with "{{test.expectation}}" should {{test.operator}} {{test.semanticsimilarity}}
-  data:
-    __StepOrder: 3
+  - step: OpenAI model {{test.modela}} response to "{{test.prompt}}" semantically compared with "{{test.expectation}}" should {{test.operator}} {{test.semanticsimilarity}}
+    data:
+      __StepOrder: 1
+  - step: OpenAI model {{model.b}} response to "{{test.prompt}}" semantically compared with "{{test.expectation}}" should {{test.operator}} {{test.semanticsimilarity}}
+    data:
+      __StepOrder: 2
+  - step: OpenAI model {{model.c}} response to "{{test.prompt}}" semantically compared with "{{test.expectation}}" should {{test.operator}} {{test.semanticsimilarity}}
+    data:
+      __StepOrder: 3
