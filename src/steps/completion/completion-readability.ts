@@ -12,8 +12,8 @@ import { baseOperators } from '../../client/constants/operators';
 export class CompletionReadability extends BaseStep implements StepInterface {
   protected stepName: string = 'Check OpenAI GPT prompt response FRES reading ease evaluation';
 
-  // tslint:disable-next-line:max-line-length
-  protected stepExpression: string = `OpenAI model (?<model>[a-zA-Z0-9_-.]+) school level of the response to "(?<prompt>[a-zA-Z0-9_ -'".,?!]+)" should (?<operator>be less than|be greater than|be one of|be|not be one of|not be) ?(?<schoollevel>.+)?`;
+  // tslint:disable-next-line:max-line-length quotemark
+  protected stepExpression: string = `OpenAI model (?<model>[a-zA-Z0-9_ -.]+) school level of the response to "(?<prompt>[a-zA-Z0-9_ -'".,?!]+)" should (?<operator>be less than|be greater than|be one of|be|not be one of|not be) ?(?<schoollevel>.+)?`;
 
   protected stepType: StepDefinition.Type = StepDefinition.Type.VALIDATION;
 
