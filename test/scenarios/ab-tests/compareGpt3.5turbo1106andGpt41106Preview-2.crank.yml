@@ -8,7 +8,7 @@ tokens:
     modela: gpt-3.5-turbo-1106
     modelb: gpt-4-1106-preview
     readabilityOperator: be greater than
-    schoolLevel: 7th grade
+    schoolLevel: 8th and 9th grade
     equalsOperator: match
     equalsExpectation: fruits | vegetables | grains | proteins | dairy
 steps:

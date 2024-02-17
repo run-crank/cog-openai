@@ -4,7 +4,7 @@ description: >
 
 tokens:
   test:
-    prompt: Please give a brief instruction (within 100 words) how to return my Amazon order and get a refund?
+    prompt: Please give a brief instruction on how to return my Amazon order and get a refund in less than 100 words?
     modela: gpt-3.5-turbo-1106
     modelb: gpt-4-1106-preview
     readabilityOperator: be greater than

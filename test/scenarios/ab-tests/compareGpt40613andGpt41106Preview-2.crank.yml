@@ -10,8 +10,8 @@ tokens:
     equalsOperator: be 
     equalsExpectation: 8
 
-    prompt2: Describe why the sky is blue to a 7th grader in simple terms.
-    schoolLevel: 7th grade
+    prompt2: Describe why the sky is blue to a middle schooler in simple terms.
+    schoolLevel: 10th grade
     readabilityOperator: be greater than
 
 steps:

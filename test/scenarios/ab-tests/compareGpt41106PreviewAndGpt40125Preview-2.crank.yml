@@ -8,7 +8,7 @@ tokens:
     modela: gpt-4-1106-preview
     modelb: gpt-4-0125-preview
     readabilityOperator: be greater than
-    schoolLevel: 7th grade
+    schoolLevel: 10th grade
 
 steps:
 - step: OpenAI model {{test.modela}} school level of the response to "{{test.prompt}}" should {{test.readabilityOperator}} {{test.schoolLevel}}

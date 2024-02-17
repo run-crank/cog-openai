@@ -9,7 +9,7 @@ tokens:
     modela: gpt-3.5-turbo-1106
     modelb: gpt-4-0613
     readabilityOperator: be greater than
-    schoolLevel: 8th & 9th grade
+    schoolLevel: 10th grade
 steps:
 - step: OpenAI model {{test.modela}} school level of the response to "{{test.prompt1}}" should {{test.readabilityOperator}} {{test.schoolLevel}}
   data:

@@ -1,6 +1,6 @@
 scenario: Contextual Comprehension Test for Tech Support Chatbot of TV Manufacturer
 description: >
-  Evaluate the model's ability to understand contextual cues in a tech support scenario for Samsung. The task is to assess the model's capacity to discern and respond accurately to a customer inquiry about connecting a Windows laptop to a TV. The evaluation includes checking if the model suggests the use of an HDMI cable and the option of Miracast.
+  Evaluate the models' ability to understand contextual cues in a tech support scenario for Samsung. The task is to assess the model's capacity to discern and respond accurately to a customer inquiry about connecting a Windows laptop to a TV. The evaluation includes checking if the model suggests the use of an HDMI cable and the option of Miracast.
 
 tokens:
   test:

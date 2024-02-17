@@ -4,8 +4,8 @@ description: >
 
 tokens:
   test:
-    prompt: Person A has a loan of $1000 and is paying it off at a rate of $50 per month. 
-            Person B has a loan of $2000 and is paying it off at a rate of $200 per month. 
+    prompt: Person A has a loan of $1000 and is paying it off at a rate of 50 dollars per month. 
+            Person B has a loan of $2000 and is paying it off at a rate of 200 dollars per month. 
             Who will pay off their loan first? Answer as A or B only.
     modela: gpt-4-0613
     modelb: gpt-4-1106-preview
