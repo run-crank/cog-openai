@@ -12,8 +12,7 @@ import { baseOperators } from '../../client/constants/operators';
 export class CompletionEquals extends BaseStep implements StepInterface {
   protected stepName: string = 'Check OpenAI GPT prompt response from completion';
 
-  // tslint:disable-next-line:max-line-length
-  // tslint:disable-next-line:quotemark
+  // tslint:disable-next-line:max-line-length quotemark
   protected stepExpression: string = `OpenAI model (?<model>[a-zA-Z0-9_ -.]+) response to "(?<prompt>[a-zA-Z0-9_ -'".,?!]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) ?(?<expectation>.+)?`;
 
   protected stepType: StepDefinition.Type = StepDefinition.Type.VALIDATION;
