@@ -16,6 +16,8 @@
     "import/order": "off",
     "new-cap": "off",
     "import/prefer-default-export": "off",
-    "no-underscore-dangle": "off"
+    "no-underscore-dangle": "off",
+    "quotes": ["error", "single", { "allowTemplateLiterals": true }],
+    "no-restricted-syntax": "off"
   }
 }
