@@ -23,7 +23,7 @@ describe('CompletionEqualsAb', () => {
       // Here, you would change the expected values to match what CompletionEqualsAb's metadata should return
       expect(stepDef.getStepId()).to.equal('CompletionEqualsAb');
       expect(stepDef.getName()).to.equal('Compare OpenAI GPT model A and B prompt responses from completion');
-      expect(stepDef.getExpression()).to.equal(`OpenAI model (?<modela>[a-zA-Z0-9_-.]+) and (?<modelb>[a-zA-Z0-9_-.]+) responses to "(?<prompt>[a-zA-Z0-9_ -'".,?!]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) ?(?<expectation>.+)?`);
+      expect(stepDef.getExpression()).to.equal(`OpenAI model (?<modela>[a-zA-Z0-9_ -.]+) and (?<modelb>[a-zA-Z0-9_ -.]+) responses to "(?<prompt>[a-zA-Z0-9_ -'".,?!]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) ?(?<expectation>.+)?`);
       expect(stepDef.getType()).to.equal(StepDefinition.Type.VALIDATION);
       // And other necessary metadata tests
     });
