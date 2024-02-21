@@ -53,7 +53,6 @@ export class Cog implements ICogServiceServer {
     const stepDefinitions: StepDefinition[] = this.steps.map((step: StepInterface) => {
       return step.getDefinition();
     });
-
     manifest.setName(pkgJson.cog.name);
     manifest.setLabel(pkgJson.cog.label);
     manifest.setVersion(pkgJson.version);
@@ -91,7 +90,7 @@ export class Cog implements ICogServiceServer {
     const client = this.instantiateClient(call.metadata);
     let processing = 0;
     let clientEnded = false;
-    let blobContent = { steps: [] };
+    let blobResponses = { steps: [] };
     let stepOrder = 0;
 
     call.on('data', async (runStepRequest: RunStepRequest) => {
@@ -101,7 +100,7 @@ export class Cog implements ICogServiceServer {
       const step: Step = runStepRequest.getStep();
       const response: RunStepResponse = await this.dispatchStep(step, call.metadata, client);
 
-      blobContent.steps.push(this.constructBlobContent(response, stepOrder));
+      blobResponses.steps.push(response.toObject());
 
       call.write(response);
       processing = processing - 1;
@@ -109,17 +108,17 @@ export class Cog implements ICogServiceServer {
       // If this was the last step to process and the client has ended the stream, then end our
       // stream as well.
       if (processing === 0 && clientEnded) {
-        await this.exportToAzureBlobStorage(blobContent);
+        // await this.exportToAzureBlobStorage(blobContent);
         call.end();
       }
     });
 
     call.on('end', async () => {
       clientEnded = true;
-    
+
       // Only end the stream if we are done processing all steps.
       if (processing === 0) {
-        await this.exportToAzureBlobStorage(blobContent);
+        await this.exportToAzureBlobStorage(blobResponses);
         call.end();
       }
     });
@@ -135,9 +134,11 @@ export class Cog implements ICogServiceServer {
   ) {
     const step: Step = call.request.getStep();
     const response: RunStepResponse = await this.dispatchStep(step, call.metadata);
-    const blobContent = this.constructBlobContent(response);
-    await this.exportToAzureBlobStorage(blobContent);
+  
     callback(null, response);
+
+    await this.exportToAzureBlobStorage(response.toObject());
+
   }
 
   /**
@@ -179,29 +180,8 @@ export class Cog implements ICogServiceServer {
     return new this.clientWrapperClass(auth);
   }
 
-  private constructBlobContent(response: RunStepResponse, stepOrder: number = 1) {
-    let blobContent = {
-      stepOrder: stepOrder,
-      outcome: response.getOutcome(),
-      message: response.getMessageFormat()
-    };
-
-    const records = response.getRecordsList();
-
-    records.forEach(record => {
-      const keyValue = (record.getKeyValue() || new Struct()).toJavaScript()
-      const keys = Object.keys(keyValue)
-      keys.forEach(key => {
-        blobContent[key] = keyValue[key]
-      })
-    })
-
-    return blobContent;
+  private async exportToAzureBlobStorage(response: object) {
+    const blob = new AzureBlob(response);
+    // await this.blobContainer.uploadBlob(blob);
   }
-
-  private async exportToAzureBlobStorage(content: object) {
-    const blob = new AzureBlob(content);
-    await this.blobContainer.uploadBlob(blob);
-  }
-
 }

@@ -21,7 +21,7 @@ export class AzureBlobContainer {
         const data = blob.getBlobData();
         const blockBlobClient = this.containerClient.getBlockBlobClient(data.blobName);
 
-        const content = JSON.stringify(data.content);
+        const content = JSON.stringify(data, null, 2);
 
         await blockBlobClient.upload(content, content.length);
 
