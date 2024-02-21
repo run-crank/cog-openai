@@ -22,7 +22,7 @@ describe('CompletionWordCount', () => {
       const stepDef: StepDefinition = stepUnderTest.getDefinition();
       expect(stepDef.getStepId()).to.equal('CompletionWordCount');
       expect(stepDef.getName()).to.equal('Check OpenAI GPT prompt response word count from completion');
-      expect(stepDef.getExpression()).to.equal('OpenAI model (?<model>[a-zA-Z0-9_-]+) word count in a response to "(?<prompt>[a-zA-Z0-9_ -]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) ?(?<expectation>.+)?');
+      expect(stepDef.getExpression()).to.equal(`OpenAI model (?<model>[a-zA-Z0-9_ -.]+) word count in a response to "(?<prompt>[a-zA-Z0-9_ -'".,?!]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) ?(?<expectation>.+)?`);
       expect(stepDef.getType()).to.equal(StepDefinition.Type.VALIDATION);
     });
 

@@ -1,0 +1,18 @@
+scenario: Compare Gpt 40613 And Gpt 41106 Preview Completion Token Cost
+description: Asks a simple question to Gpt 40613 and Gpt 41106 Preview to compare token cost (expected token is based on ChatGPT 3.5 token cost)
+
+tokens:
+  test:
+    trivialPrompt: give me a summary of the bee movie
+    operator: be less than
+    expectation: 250
+    type: completion
+    modela: gpt-4-0613
+    modelb: gpt-4-1106-preview
+steps:
+- step: OpenAI model {{test.modela}} {{test.type}} token cost in response to "{{test.trivialPrompt}}" should {{test.operator}} {{test.expectation}} tokens
+  data:
+    __stepOrder: 1
+- step: OpenAI model {{test.modelb}} {{test.type}} token cost in response to "{{test.trivialPrompt}}" should {{test.operator}} {{test.expectation}} tokens
+  data:
+    __stepOrder: 2
