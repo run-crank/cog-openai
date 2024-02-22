@@ -90,11 +90,9 @@ export class Cog implements ICogServiceServer {
     const client = this.instantiateClient(call.metadata);
     let processing = 0;
     let clientEnded = false;
-    let stepOrder = 0;
 
     call.on('data', async (runStepRequest: RunStepRequest) => {
       processing = processing + 1;
-      stepOrder = stepOrder + 1;
 
       const step: Step = runStepRequest.getStep();
       const response: RunStepResponse = await this.dispatchStep(step, call.metadata, client);
