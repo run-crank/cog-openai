@@ -109,7 +109,7 @@ export class Cog implements ICogServiceServer {
       }
     });
 
-    call.on('end', async () => {
+    call.on('end', () => {
       clientEnded = true;
 
       // Only end the stream if we are done processing all steps.

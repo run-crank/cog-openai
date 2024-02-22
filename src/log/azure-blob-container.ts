@@ -23,9 +23,7 @@ export class AzureBlobContainer {
             const data = blob.getBlobData();
             const blockBlobClient = this.containerClient.getBlockBlobClient(data.blobName);
             const content = JSON.stringify(data, null, 2);
-            console.log(content);
             await blockBlobClient.upload(content, content.length);
-            console.log(`Blob "${data.blobName}" uploaded to Azure Blob Storage.`);
         } catch (error) {
             console.error(`Error uploading blob: ${error}`);
         }
@@ -68,9 +66,7 @@ export class AzureBlobContainer {
             console.log(`Container "${this.containerName}" created.`);
         } catch (error) {
             if (error.statusCode === 409) {
-                console.log(`Container "${this.containerName}" already exists.`);
-            } else {
-                throw error;
+                console.log(`Container "${this.containerName}" exists.`);
             }
         }
     }
