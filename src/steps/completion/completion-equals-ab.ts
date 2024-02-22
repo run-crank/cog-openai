@@ -100,15 +100,15 @@ export class CompletionEqualsAb extends BaseStep implements StepInterface {
       const failedModels = [];
 
       if (resulta.valid) {
-        passedModels.push({ model: modela, response: actuala });
+        passedModels.push({ model: modela, response: actuala, request: completiona.request_payload });
       } else {
-        failedModels.push({ model: modela, response: actuala });
+        failedModels.push({ model: modela, response: actuala, request: completiona.request_payload });
       }
 
       if (resultb.valid) {
-        passedModels.push({ model: modelb, response: actualb });
+        passedModels.push({ model: modelb, response: actualb, request: completionb.request_payload });
       } else {
-        failedModels.push({ model: modelb, response: actualb });
+        failedModels.push({ model: modelb, response: actualb, request: completionb.request_payload });
       }
 
       const records = [];

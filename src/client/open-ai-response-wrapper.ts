@@ -2,11 +2,13 @@ export class ChatCompletionWrapper<ChatCompletion> {
   private originalClass: ChatCompletion;
 
   public response_time: number;
+  public request_payload: object;
 
-  constructor(originalClass: ChatCompletion, responseTime: number) {
+  constructor(originalClass: ChatCompletion, responseTime: number, requestPayload: object) {
     this.originalClass = originalClass;
     this.copyProperties();
     this.response_time = responseTime;
+    this.request_payload = requestPayload;
   }
 
   copyProperties() {

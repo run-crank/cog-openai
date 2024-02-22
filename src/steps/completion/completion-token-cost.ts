@@ -119,6 +119,7 @@ export class CompletionTokenCost extends BaseStep implements StepInterface {
         response,
         usage,
         created: completion.created,
+        request: completion.request_payload,
       };
       const records = this.createRecords(type, actualUsage, returnObj, stepData.__stepOrder);
       return result.valid ? this.pass(result.message, [], records) : this.fail(result.message, [], records);

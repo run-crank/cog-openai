@@ -1,4 +1,4 @@
-import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
+import { BlobServiceClient, ContainerClient, ContainerCreateResponse } from "@azure/storage-blob";
 import { AzureBlob } from "./azure-blob";
 import * as dotenv from "dotenv";
 dotenv.config();
@@ -15,17 +15,20 @@ export class AzureBlobContainer {
         this.containerName = containerName;
         this.blobServiceClient = BlobServiceClient.fromConnectionString(this.connectionString);
         this.containerClient = this.blobServiceClient.getContainerClient(this.containerName);
+        this.ensureContainerExists();
     }
 
     async uploadBlob(blob: AzureBlob) {
-        const data = blob.getBlobData();
-        const blockBlobClient = this.containerClient.getBlockBlobClient(data.blobName);
-
-        const content = JSON.stringify(data, null, 2);
-
-        await blockBlobClient.upload(content, content.length);
-
-        console.log(`Blob "${data.blobName}" uploaded to Azure Blob Storage.`);
+        try {
+            const data = blob.getBlobData();
+            const blockBlobClient = this.containerClient.getBlockBlobClient(data.blobName);
+            const content = JSON.stringify(data, null, 2);
+            console.log(content);
+            await blockBlobClient.upload(content, content.length);
+            console.log(`Blob "${data.blobName}" uploaded to Azure Blob Storage.`);
+        } catch (error) {
+            console.error(`Error uploading blob: ${error}`);
+        }
     }
 
     async getAllBlobs(): Promise<any[]> {
@@ -46,14 +49,6 @@ export class AzureBlobContainer {
         return downloadedContent;
     }
 
-    async deleteBlob(blobName: string) {
-        const blockBlobClient = this.containerClient.getBlockBlobClient(blobName);
-
-        await blockBlobClient.delete();
-
-        console.log(`Blob "${blobName}" deleted from Azure Blob Storage.`);
-    }
-
     private async streamToString(readableStream: NodeJS.ReadableStream): Promise<string> {
         return new Promise((resolve, reject) => {
             const chunks: any[] = [];
@@ -65,5 +60,18 @@ export class AzureBlobContainer {
             });
             readableStream.on("error", reject);
         });
+    }
+
+    async ensureContainerExists(): Promise<void> {
+        try {
+            const createContainerResponse: ContainerCreateResponse = await this.containerClient.create();
+            console.log(`Container "${this.containerName}" created.`);
+        } catch (error) {
+            if (error.statusCode === 409) {
+                console.log(`Container "${this.containerName}" already exists.`);
+            } else {
+                throw error;
+            }
+        }
     }
 }

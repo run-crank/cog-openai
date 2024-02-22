@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import { Field, StepInterface } from './base-step';
 import { ClientWrapper } from '../client/client-wrapper';
 import { ICogServiceServer } from '../proto/cog_grpc_pb';
-import { ManifestRequest, CogManifest, Step, RunStepRequest, RunStepResponse, FieldDefinition, StepDefinition } from '../proto/cog_pb';
+import { ManifestRequest, CogManifest, Step, RunStepRequest, RunStepResponse, FieldDefinition, StepDefinition, StepRecord, TableRecord } from '../proto/cog_pb';
 import { AzureBlob } from '../log/azure-blob';
 import { AzureBlobContainer } from '../log/azure-blob-container';
 
@@ -90,7 +90,6 @@ export class Cog implements ICogServiceServer {
     const client = this.instantiateClient(call.metadata);
     let processing = 0;
     let clientEnded = false;
-    let blobResponses = { steps: [] };
     let stepOrder = 0;
 
     call.on('data', async (runStepRequest: RunStepRequest) => {
@@ -100,9 +99,8 @@ export class Cog implements ICogServiceServer {
       const step: Step = runStepRequest.getStep();
       const response: RunStepResponse = await this.dispatchStep(step, call.metadata, client);
 
-      blobResponses.steps.push(response.toObject());
-
       call.write(response);
+      this.exportToAzureBlobStorage(response);
       processing = processing - 1;
 
       // If this was the last step to process and the client has ended the stream, then end our
@@ -118,7 +116,6 @@ export class Cog implements ICogServiceServer {
 
       // Only end the stream if we are done processing all steps.
       if (processing === 0) {
-        await this.exportToAzureBlobStorage(blobResponses);
         call.end();
       }
     });
@@ -134,11 +131,10 @@ export class Cog implements ICogServiceServer {
   ) {
     const step: Step = call.request.getStep();
     const response: RunStepResponse = await this.dispatchStep(step, call.metadata);
-  
+
+    this.exportToAzureBlobStorage(response);
+
     callback(null, response);
-
-    await this.exportToAzureBlobStorage(response.toObject());
-
   }
 
   /**
@@ -180,8 +176,35 @@ export class Cog implements ICogServiceServer {
     return new this.clientWrapperClass(auth);
   }
 
-  private async exportToAzureBlobStorage(response: object) {
-    const blob = new AzureBlob(response);
-    // await this.blobContainer.uploadBlob(blob);
+  private exportToAzureBlobStorage(response: RunStepResponse) {
+
+    let blobContent = {
+      outcome: response.getOutcome(),
+      message: response.getMessageFormat()
+    };
+
+    const records = response.getRecordsList();
+
+    records.forEach(record => {
+      if (record.getValueCase() === StepRecord.ValueCase.KEY_VALUE) {
+        const keyValue = (record.getKeyValue() || new Struct()).toJavaScript()
+        const keys = Object.keys(keyValue)
+        keys.forEach(key => {
+          blobContent[key] = keyValue[key]
+        })
+      }
+      
+      if (record.getValueCase() === StepRecord.ValueCase.TABLE) { 
+        const table = record.getTable() || new TableRecord()
+          const tableHeaders = (table.getHeaders() || new Struct()).toJavaScript()
+          const rows = table.getRowsList().map(row => row.toJavaScript())
+          Object.keys(tableHeaders).forEach(header => {
+            blobContent[header] = rows.map(row => row[header])
+          })
+        }
+    })
+
+    const blob = new AzureBlob(blobContent);
+    this.blobContainer.uploadBlob(blob);
   }
 }
