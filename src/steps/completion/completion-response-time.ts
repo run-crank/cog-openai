@@ -110,7 +110,7 @@ export class CompletionResponseTime extends BaseStep implements StepInterface {
         responsetime: responseTime,
         usage: completion.usage,
         created: completion.created,
-        request: completion.request_payload
+        request: completion.request_payload,
       };
       const records = this.createRecords(returnObj, stepData.__stepOrder);
       return result.valid ? this.pass(result.message, [], records) : this.fail(result.message, [], records);

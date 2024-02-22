@@ -2,6 +2,7 @@ export class ChatCompletionWrapper<ChatCompletion> {
   private originalClass: ChatCompletion;
 
   public response_time: number;
+
   public request_payload: object;
 
   constructor(originalClass: ChatCompletion, responseTime: number, requestPayload: object) {

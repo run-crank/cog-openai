@@ -160,7 +160,7 @@ export class CompletionReadability extends BaseStep implements StepInterface {
         notes: fleschReadingEaseScoreObj.notes,
         usage: completion.usage,
         created: completion.created,
-        request: completion.request_payload
+        request: completion.request_payload,
       };
       const records = this.createRecords(returnObj, stepData.__stepOrder);
 
