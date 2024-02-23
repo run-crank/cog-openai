@@ -21,16 +21,16 @@ export class Cog implements ICogServiceServer {
 
   private getSteps(dir: string, clientWrapperClass) {
     const steps = fs.readdirSync(dir, { withFileTypes: true })
-      .map((file: fs.Dirent) => {
-        if (file.isFile() && (file.name.endsWith('.ts') || file.name.endsWith('.js'))) {
-          const step = require(`${dir}/${file.name}`).Step;
-          const stepInstance: StepInterface = new step(clientWrapperClass);
-          this.stepMap[stepInstance.getId()] = step;
-          return stepInstance;
-        } if (file.isDirectory()) {
-          return this.getSteps(`${__dirname}/../steps/${file.name}`, clientWrapperClass);
-        }
-      });
+    .map((file: fs.Dirent) => {
+      if (file.isFile() && (file.name.endsWith('.ts') || file.name.endsWith('.js'))) {
+        const step = require(`${dir}/${file.name}`).Step;
+        const stepInstance: StepInterface = new step(clientWrapperClass);
+        this.stepMap[stepInstance.getId()] = step;
+        return stepInstance;
+      } if (file.isDirectory()) {
+        return this.getSteps(`${__dirname}/../steps/${file.name}`, clientWrapperClass);
+      }
+    });
 
     // Note: this filters out files that do not match the above (e.g. READMEs
     // or .js.map files in built folder, etc).
