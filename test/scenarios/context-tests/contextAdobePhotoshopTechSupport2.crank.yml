@@ -1,0 +1,23 @@
+scenario: Adobe Photoshop technical support question on healing tool
+description: >
+  Test for ability to answer technical support question for popular software like Adobe Photoshop
+
+tokens:
+  test:
+    prompt: I want to erase wrinkles and blemishes from a photo. What tool should I use in Adobe Photoshop? Please provide the name of the tool only.
+    modela: gpt-4-0613
+    modelb: gpt-4-1106-preview
+    modelc: gpt-4-0125-preview
+    semanticSimilarityExpectation: healing tool
+    semanticSimilarityOperator: be greater than
+    semanticSimilarity: 0.5
+steps:
+- step: OpenAI model {{test.modela}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
+  data:
+    __stepOrder: 1
+- step: OpenAI model {{test.modelb}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
+  data:
+    __stepOrder: 2
+- step: OpenAI model {{test.modelc}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
+  data:
+    __stepOrder: 3

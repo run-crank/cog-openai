@@ -1,0 +1,28 @@
+scenario: Make a complaint about a service without specifying the complaint
+description: >
+  Test for ability to understand the context of a complaint and request for more details
+  when prompted with an ambiguous complaint
+
+tokens:
+  test:
+    prompt: Assume you're a virtual assistant for a tech company.
+      A user states that they're not satisfied with the service.
+    modela: gpt-4-0613
+    modelb: gpt-4-1106-preview
+    modelc: gpt-4-0125-preview
+    semanticSimilarityExpectation:
+      I'm sorry to hear that. Could you please provide more details about the issue so I may further assist you?
+      Your satisfaction is important to us and we would like to address your concerns.
+    semanticSimilarityOperator: be greater than
+    semanticSimilarity: 0.2
+
+steps:
+  - step: OpenAI model {{test.modela}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
+    data:
+      __StepOrder: 1
+  - step: OpenAI model {{model.b}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
+    data:
+      __StepOrder: 2
+  - step: OpenAI model {{model.c}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
+    data:
+      __StepOrder: 3

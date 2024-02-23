@@ -1,0 +1,24 @@
+scenario: Compare Gpt 41106 Preview And Gpt 3.5 turbo 0125
+description: >
+  Compare Gpt 41106 Preview And Gpt 3.5 turbo 0125
+
+tokens:
+  test:
+    prompt: What is the name of the nearest star system to Earth in one sentence?
+    modela: gpt-4-1106-preview
+    modelb: gpt-3.5-turbo-0125
+    equalsOperator: contain
+    equalsExpectation: Alpha Centauri
+    semanticSimilarityOperator: be greater than
+    semanticSimilarityExpectation: The nearest star system to Earth is Alpha Centauri.
+    semanticSimilarity: 0.5
+steps:
+- step: OpenAI model {{test.modela}} and {{test.modelb}} responses to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __stepOrder: 1
+- step: OpenAI model {{test.modela}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
+  data:
+    __stepOrder: 2
+- step: OpenAI model {{test.modelb}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
+  data:
+    __stepOrder: 3

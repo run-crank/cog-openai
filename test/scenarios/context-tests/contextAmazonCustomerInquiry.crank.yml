@@ -1,0 +1,22 @@
+scenario: Check if Amazon Prime membership can be cancelled
+description: >
+  Customer inquiry about cancelling Amazon Prime membership
+
+tokens:
+  test:
+    prompt: To avoid paying for the next billing cycle, how many days before the next billing date should I cancel my Amazon Prime membership? Please just provide the number of days.
+    modela: gpt-4-0613
+    modelb: gpt-4-1106-preview
+    modelc: gpt-4-0125-preview
+    equalsOperator: contain
+    equalsExpectation: 3
+steps:
+- step: OpenAI model {{test.modela}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __stepOrder: 1
+- step: OpenAI model {{test.modelb}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __stepOrder: 2
+- step: OpenAI model {{test.modelc}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __stepOrder: 3

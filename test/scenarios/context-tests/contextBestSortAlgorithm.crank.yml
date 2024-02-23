@@ -1,0 +1,29 @@
+scenario: Best sorting algorithm inquiry
+description: >
+  Test the models' ability to choose the most time efficient algorithm out of a set of sorting algorithms
+
+tokens:
+  test:
+    prompt: Which of the following algorithms is the most time efficient in the worst case, for sorting a list of numbers?
+            A Bubble sort
+            B Quick sort
+            C Merge sort
+            D Insertion sort
+            E Selection sort
+    modela: gpt-4-0613
+    modelb: gpt-4-1106-preview
+    modelc: gpt-4-0125-preview
+    equalsExpectation: C | Merge sort
+    equalsOperator: match
+
+steps:
+- step: OpenAI model {{test.modela}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __StepOrder: 1
+- step: OpenAI model {{test.modelb}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __StepOrder: 2
+- step: OpenAI model {{test.modelc}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __StepOrder: 3
+

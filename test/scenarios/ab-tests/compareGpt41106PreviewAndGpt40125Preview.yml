@@ -1,0 +1,23 @@
+scenario: Compare Gpt 41106 Preview And Gpt 40125 Preview
+description: >
+  Compare Gpt 41106 Preview And Gpt 40125 Preview
+
+tokens:
+  test:
+    prompt: In less than 20 words, can you let me know what machine learning models that are built using principles of neuronal organization discovered by connectionism in the biological neural networks constituting animal brains?
+    modela: gpt-4-1106-preview
+    modelb: gpt-4-0125-preview
+    equalsOperator: contain
+    equalsExpectation: artificial neural networks
+    wordCountOperator: be less than
+    wordCountExpectation: 20
+steps:
+- step: OpenAI model {{test.modela}} and {{test.modelb}} responses to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __stepOrder: 1
+- step: OpenAI model {{test.modela}} word count in a response to "{{test.prompt}}" should {{test.wordCountOperator}} {{test.wordCountExpectation}}
+  data:
+    __stepOrder: 2
+- step: OpenAI model {{test.modelb}} word count in a response to "{{test.prompt}}" should {{test.wordCountOperator}} {{test.wordCountExpectation}}
+  data:
+    __stepOrder: 3

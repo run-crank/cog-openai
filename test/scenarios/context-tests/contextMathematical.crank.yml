@@ -1,0 +1,22 @@
+scenario: Calculate the area of a triangular garden
+description: >
+  Check ability to understand mathematical context
+
+tokens:
+  test:
+    prompt: A triangular garden has a base of 10 meters and a height of 6 meters. What is the area of the garden in square meters? Just give the number.
+    modela: gpt-4-0613
+    modelb: gpt-4-1106-preview
+    modelc: gpt-4-0125-preview
+    equalsOperator: match
+    equalsExpectation: 30
+steps:
+- step: OpenAI model {{test.modela}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __stepOrder: 1
+- step: OpenAI model {{test.modelb}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __stepOrder: 2
+- step: OpenAI model {{test.modelc}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __stepOrder: 3

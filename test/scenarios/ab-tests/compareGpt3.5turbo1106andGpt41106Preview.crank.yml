@@ -1,0 +1,26 @@
+scenario: Compare Gpt 3.5 turbo 1106 and Gpt 41106 Preview
+description: >
+  Compare Gpt 3.5 turbo 1106 and Gpt 41106 Preview
+
+tokens:
+  test:
+    prompt: Please give a brief instruction on how to return my Amazon order and get a refund in less than 100 words?
+    modela: gpt-3.5-turbo-1106
+    modelb: gpt-4-1106-preview
+    readabilityOperator: be greater than
+    schoolLevel: 10th to 12th grade
+    wordCountOperator: be less than
+    wordCountExpectation: 100
+steps:
+- step: OpenAI model {{test.modela}} school level of the response to "{{test.prompt}}" should {{test.readabilityOperator}} {{test.schoolLevel}}
+  data:
+    __stepOrder: 1
+- step: OpenAI model {{test.modelb}} school level of the response to "{{test.prompt}}" should {{test.readabilityOperator}} {{test.schoolLevel}}
+  data:
+    __stepOrder: 2
+- step: OpenAI model {{test.modela}} word count in a response to "{{test.prompt}}" should {{test.wordCountOperator}} {{test.wordCountExpectation}}
+  data:
+    __stepOrder: 3
+- step: OpenAI model {{test.modelb}} word count in a response to "{{test.prompt}}" should {{test.wordCountOperator}} {{test.wordCountExpectation}}
+  data:
+    __stepOrder: 4

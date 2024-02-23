@@ -1,0 +1,23 @@
+scenario: Asking for the information of an event without specifying the event
+description: >
+  Test for ability to handle unclear subject
+
+tokens:
+  test:
+    prompt: Can you tell me if the event was successful?
+    modela: gpt-4-0613
+    modelb: gpt-4-1106-preview
+    modelc: gpt-4-0125-preview
+    semanticSimilarityExpectation: please provide more details about the event
+    semanticSimilarityOperator: be greater than
+    semanticSimilarity: 0.1
+steps:
+  - step: OpenAI model {{test.modela}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
+    data:
+      __stepOrder: 1
+  - step: OpenAI model {{test.modelb}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
+    data:
+      __stepOrder: 2
+  - step: OpenAI model {{test.modelc}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
+    data:
+      __stepOrder: 3

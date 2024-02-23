@@ -1,0 +1,15 @@
+scenario: Contextual Ambiguity Resolution Test in Video Streaming Service Support
+description: >
+  Assess the model's ability to comprehend contextual cues within the context of a video streaming service. The scenario involves a customer with a basic plan expressing the desire to upgrade without specifying the preferred plan. The objective is to evaluate the model's capacity to discern the context and ask for specific information, such as the name of the desired plan, to generate a precise and relevant response within the given constraint of three sentences.
+
+tokens:
+  test:
+    prompt: Assume you are a customer service chatbot of video streaming service and you have four plans(basic, pro, premium, vip) and only respond in 3 sentences. The customer says "my plan is basic, I want to upgrade it"
+    semanticSimilarityExpectation: Which plan are you interested in upgrading to?
+    semanticSimilarity: 0.1
+    model: gpt-4-1106-preview
+    
+steps:
+  - step: OpenAI model {{test.model}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should be greater than {{test.semanticSimilarity}}
+    data:
+      __stepOrder: 1

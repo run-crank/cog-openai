@@ -1,0 +1,25 @@
+scenario: Airpods battery life context inquiry
+description: >
+  Provide battery life context for the Airpods Pro 2 and the original Airpods Pro to test the models' ability to differentiate which is better
+
+tokens:
+  test:
+    prompt: If I tell you that the Airpods Pro 2 has a 6 hour battery life compared to the original Airpods Pro's 4.5 hours, can you tell me which one has a better battery life?
+    modela: gpt-4-0613
+    modelb: gpt-4-1106-preview
+    modelc: gpt-4-0125-preview
+    semanticSimilariityExpectation: The new AirPods Pro 2 get a better battery life offering up to 6 hours compared to the original AirPods Pro's 4 and a half hours.
+    semanticSimilariityOperator: be greater than
+    semanticSimilarity: 0.5  
+
+steps:
+- step: OpenAI model {{test.modela}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilariityExpectation}}" should {{test.semanticSimilariityOperator}} {{test.semanticSimilarity}}
+  data:
+    __StepOrder: 1
+- step: OpenAI model {{test.modelb}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilariityExpectation}}" should {{test.semanticSimilariityOperator}} {{test.semanticSimilarity}}
+  data:
+    __StepOrder: 2
+- step: OpenAI model {{test.modelc}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilariityExpectation}}" should {{test.semanticSimilariityOperator}} {{test.semanticSimilarity}}
+  data:
+    __StepOrder: 3
+

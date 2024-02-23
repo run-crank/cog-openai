@@ -1,0 +1,28 @@
+scenario: Compare Gpt 3.5 turbo 1106 and Gpt 4 0125 Preview
+description: >
+  Compare Gpt 3.5 turbo 1106 and Gpt 4 0125 Preview
+
+tokens:
+  test:
+    prompt: Assume you are a virtual assistant for a retail store. A customer purchased an item and wants to return it. 
+    modelb: gpt-3.5-turbo-1106
+    modela: gpt-4-0125-preview
+    readabilityOperator: be greater than
+    schoolLevel: 8th & 9th grade
+    equalsOperator: match
+    equalsExpectation: reason | order number
+
+steps:
+- step: OpenAI model {{test.modela}} school level of the response to "{{test.prompt}}" should {{test.readabilityOperator}} {{test.schoolevel}}
+  data:
+    __stepOrder: 1
+- step: OpenAI model {{test.modelb}} school level of the response to "{{test.prompt}}" should {{test.readabilityOperator}} {{test.schoolevel}}
+  data:
+    __stepOrder: 2
+- step: OpenAI model {{test.modela}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __stepOrder: 3
+- step: OpenAI model {{test.modelb}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __stepOrder: 4
+

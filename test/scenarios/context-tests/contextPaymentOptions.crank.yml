@@ -1,0 +1,26 @@
+scenario: Online payment inquiry
+description: >
+  Test the models' ability to provide valid payment options for online transactions
+
+tokens:
+  test:
+    prompt: Assume you are a virtual assistant providing billing support for an online retailer. 
+            A customer has contacted you to inquire about the available payment options for their online purchase. 
+            What are the available payment options?
+    modela: gpt-4-0613
+    modelb: gpt-4-1106-preview
+    modelc: gpt-4-0125-preview
+    equalsExpectation: Visa | MasterCard | American Express | debit | PayPal 
+    equalsOperator: match
+
+steps:
+- step: OpenAI model {{test.modela}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __StepOrder: 1
+- step: OpenAI model {{test.modelb}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __StepOrder: 2
+- step: OpenAI model {{test.modelc}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __StepOrder: 3
+

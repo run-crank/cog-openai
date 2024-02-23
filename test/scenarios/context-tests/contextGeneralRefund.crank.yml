@@ -1,0 +1,19 @@
+scenario:  Contextual Comprehension Test in Apple Product Experience
+description: >
+  Assess the model's ability to discern the total number of Apple devices purchased by a customer and understand the implied intention of seeking a refund in a post expressing dissatisfaction with a recently bought MacBook.
+
+tokens:
+  test:
+    prompt: Customer says "I have been using iPhone 10 and AirPods 1 so far, and recently, I used the latest MacBook. However, I am extremely disappointed with the performance of this MacBook, and the program execution speed is much slower than advertised. Additionally, a dent near the charging port, which seems to have occurred during the delivery process, has been discovered. Unfortunately, I have no intention of using this product. Furthermore, it has not been three days since the purchase date. I am attaching my order number and credit card information here." How many Apple devices has this person purchased in total, and what is the intention behind writing this post?" answer in 2-3 sentences.
+    equalsOperator: contain
+    equalsExpectation: three
+    semanticSimilarityExpectation: likely seek a resolution such as a return, exchange, or repair since the purchase was made recently. 
+    semanticSimilarity: 0.1
+    model: gpt-4-1106-preview
+steps:
+- step: OpenAI model {{test.model}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should be greater than {{test.semanticSimilarity}}
+  data:
+    __stepOrder: 1
+- step: OpenAI model {{test.model}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __stepOrder: 2

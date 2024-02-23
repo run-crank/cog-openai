@@ -1,0 +1,22 @@
+scenario: Identify the art movement based on the description
+description: >
+  Test for ability to understand the provided content and identify the art movement
+
+tokens:
+  test:
+    prompt: Salvador Dali has been a prominent figure in this art movement. The movement is known for its use of dream-like imagery, and its exploration of the subconscious mind. Can you give only the name of the art movement?
+    modela: gpt-4-0613
+    modelb: gpt-4-1106-preview
+    modelc: gpt-4-0125-preview
+    equalsOperator: be
+    equalsExpectation: Surrealism
+steps:
+- step: OpenAI model {{test.modela}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __stepOrder: 1
+- step: OpenAI model {{test.modelb}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __stepOrder: 2
+- step: OpenAI model {{test.modelc}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __stepOrder: 3

@@ -1,0 +1,26 @@
+scenario: Ask for help regarding an order without providing an order number
+description: >
+  Test for ability to request for an order number when prompted with an ambiguous question about an order
+
+tokens:
+  test:
+    prompt:
+      Assume you are a virtual assistant providing customer support for an online retailer.
+      I need assistance with my order.
+    modela: gpt-4-0613
+    modelb: gpt-4-1106-preview
+    modelc: gpt-4-0125-preview
+    semanticSimilarityExpectation: Please provide your order number so I may further assist you.
+    semanticSimilarityOperator: be greater than
+    semanticSimilarity: 0.2
+
+steps:
+  - step: OpenAI model {{test.modela}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
+    data:
+      __StepOrder: 1
+  - step: OpenAI model {{model.b}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
+    data:
+      __StepOrder: 2
+  - step: OpenAI model {{model.c}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
+    data:
+      __StepOrder: 3

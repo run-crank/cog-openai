@@ -1,0 +1,26 @@
+scenario: Compare Gpt 3.5 turbo 1106 and Gpt 41106 Preview
+description: >
+  Compare Gpt 3.5 turbo 1106 and Gpt 41106 Preview
+
+tokens:
+  test:
+    prompt: List the food groups in a sentence.
+    modela: gpt-3.5-turbo-1106
+    modelb: gpt-4-1106-preview
+    readabilityOperator: be greater than
+    schoolLevel: 8th and 9th grade
+    equalsOperator: match
+    equalsExpectation: fruits | vegetables | grains | proteins | dairy
+steps:
+- step: OpenAI model {{test.modela}} school level of the response to "{{test.prompt}}" should {{test.readabilityOperator}} {{test.schoolLevel}}
+  data:
+    __stepOrder: 1
+- step: OpenAI model {{test.modelb}} school level of the response to "{{test.prompt}}" should {{test.readabilityOperator}} {{test.schoolLevel}}
+  data:
+    __stepOrder: 2
+- step: OpenAI model {{test.modela}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __stepOrder: 2
+- step: OpenAI model {{test.modelb}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __stepOrder: 4

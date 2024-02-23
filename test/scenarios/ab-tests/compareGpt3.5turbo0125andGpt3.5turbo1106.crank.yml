@@ -1,0 +1,18 @@
+scenario: Compare Gpt 3.5 turbo 0125 and Gpt 3.5 turbo 1106
+description: >
+  Compare Gpt 3.5 turbo 0125 and Gpt 3.5 turbo 1106
+
+tokens:
+  test:
+    prompt: Can you explain to my 10 year old daughter the concept of quantum computing?
+    modela: gpt-3.5-turbo-0125
+    modelb: gpt-3.5-turbo-1106
+    readabilityOperator: be greater than
+    schoolLevel: 8th & 9th grade
+steps:
+- step: OpenAI model {{test.modela}} school level of the response to "{{test.prompt}}" should {{test.readabilityOperator}} {{test.schoolLevel}}
+  data:
+    __stepOrder: 1
+- step: OpenAI model {{test.modelb}} school level of the response to "{{test.prompt}}" should {{test.readabilityOperator}} {{test.schoolLevel}}
+  data:
+    __stepOrder: 2

@@ -1,0 +1,22 @@
+scenario: Indentify the historical event based on the description
+description: >
+  Test for ability to understand the provided context and identify the historical event
+
+tokens:
+  test:
+    prompt: This event marked the end of the Cold War division between East and West Berlin. It was a pivotal moment symbolizing the triumph of democracy and freedom over oppression. The event led to the reunification of Germany and the eventual dissolution of the Soviet Union. Please give the name of the event.
+    modela: gpt-4-0613
+    modelb: gpt-4-1106-preview
+    modelc: gpt-4-0125-preview
+    equalsOperator: contain
+    equalsExpectation: Fall of the Berlin Wall
+steps:
+- step: OpenAI model {{test.modela}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __stepOrder: 1
+- step: OpenAI model {{test.modelb}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __stepOrder: 2
+- step: OpenAI model {{test.modelc}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __stepOrder: 3

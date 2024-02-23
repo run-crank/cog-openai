@@ -1,0 +1,19 @@
+scenario:  Contextual Comprehension Test in Economical Context
+description: >
+  Evaluate the model's ability to infer the meaning of "shorting" in the stock market without direct hints, solely based on provided contextual information.
+
+tokens:
+  test:
+    prompt: During the 2008 Lehman Brothers crisis, many investors actively engaged in "shorting" in the stock market.  Shorting garnered significant attention amid the complex landscape of the financial crisis. What is the 'shorting' in this context? answer in 3 sentences.
+    equalsOperator: contain
+    equalsExpectation: borrow
+    semanticSimilarityExpectation: short selling in the stock market is an investment strategy where an investor borrows shares of a stock they anticipate will drop in price.
+    semanticSimilarity: 0.1
+    model: gpt-4-1106-preview
+steps:
+- step: OpenAI model {{test.model}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should be greater than {{test.semanticSimilarity}}
+  data:
+    __stepOrder: 1
+- step: OpenAI model {{test.model}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __stepOrder: 2
