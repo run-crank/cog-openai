@@ -1,0 +1,20 @@
+scenario: Contextual Ambiguity Resolution Test in Online Shopping Mall Customer Service
+description: >
+  Assess the model's ability to comprehend contextual cues within the context of an online shopping mall. The scenario involves a customer expressing the desire to redeem points for their last purchase without providing specific details. The objective is to evaluate how well the model can discern the context and seek necessary information, such as the customer's order number or the email address associated with their shopping mall account, to generate a precise and relevant response.
+
+tokens:
+  test:
+    prompt: Assume you are a customer service chatbot of a online shopping mall. A customer sent a message that says 'I want to redeem my points for the last purchase'
+    semanticSimilarityExpectation: could you please provide me with your order number or the email address associated with your shopping mall account
+    equalsOperator: contain
+    equalsExpectation: order number
+    semanticSimilarity: 0.1
+    model: gpt-4-1106-preview
+    
+steps:
+  - step: OpenAI model {{test.model}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should be greater than {{test.semanticSimilarity}}
+    data:
+      __stepOrder: 1
+  - step: OpenAI model {{test.model}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+    data:
+      __stepOrder: 2

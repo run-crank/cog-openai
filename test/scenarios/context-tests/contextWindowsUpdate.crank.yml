@@ -1,0 +1,19 @@
+scenario: Technical Support Test with Microsoft Windows Update
+description: >
+   Assess the model's ability to comprehend contextual cues in a Microsoft tech support scenario. The task is to evaluate the model's capacity to discern and accurately respond to a customer's inquiry about updating their Windows from version 10 to 11.
+
+tokens:
+  test:
+    prompt: Assume you are a tech support chatbot of Microsoft. A customer sent a message that says 'How can I update my windows from 10 to 11'
+    equalsOperator: contain
+    equalsExpectationA: 'Update & Security'
+    equalsExpectationB: 'Windows Update'
+    semanticSimilarity: 0.1
+    model: gpt-4-1106-preview
+steps:
+- step: OpenAI model {{test.model}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectationA}}
+  data:
+    __stepOrder: 1
+- step: OpenAI model {{test.model}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectationB}}
+  data:
+    __stepOrder: 2

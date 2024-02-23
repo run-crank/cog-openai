@@ -1,0 +1,20 @@
+scenario: Contextual Ambiguity Resolution Test in Customer Support for Apparel Shipping
+description: >
+  Assess the model's ability to effectively handle ambiguous queries in a customer support context. The scenario involves a customer inquiry about the status of their shipment without providing specific details. The objective is to evaluate how well the model can seek clarification by asking for necessary information, such as the order number, to provide a more accurate response.
+
+tokens:
+  test:
+    prompt: Assume you are a customer support chatbot of apparel company. A customer sent a message that says 'Where is my shipping'
+    semanticSimilarityExpectation: Could you please provide me with your order number
+    equalsOperator: contain
+    equalsExpectation: order number
+    semanticSimilarity: 0.15
+    model: gpt-4-1106-preview
+
+steps:
+  - step: OpenAI model {{test.model}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should be greater than {{test.semanticSimilarity}}
+    data:
+      __stepOrder: 1
+  - step: OpenAI model {{test.model}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+    data:
+      __stepOrder: 2

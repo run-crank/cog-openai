@@ -1,0 +1,25 @@
+scenario: Compare Gpt 3.5 turbo 1106 and Gpt 4 0613
+description: >
+  Compare Gpt 3.5 turbo 1106 and Gpt 4 0613
+
+tokens:
+  test:
+    prompt1: Describe the process of photosynthesis to a middle school student.
+    prompt2: Describe nuclear power in simple terms to a middle school student.
+    modela: gpt-3.5-turbo-1106
+    modelb: gpt-4-0613
+    readabilityOperator: be greater than
+    schoolLevel: 10th grade
+steps:
+- step: OpenAI model {{test.modela}} school level of the response to "{{test.prompt1}}" should {{test.readabilityOperator}} {{test.schoolLevel}}
+  data:
+    __stepOrder: 1
+- step: OpenAI model {{test.modelb}} school level of the response to "{{test.prompt1}}" should {{test.readabilityOperator}} {{test.schoolLevel}}
+  data:
+    __stepOrder: 2
+- step: OpenAI model {{test.modela}} school level of the response to "{{test.prompt2}}" should {{test.readabilityOperator}} {{test.schoolLevel}}
+  data:
+    __stepOrder: 3
+- step: OpenAI model {{test.modelb}} school level of the response to "{{test.prompt2}}" should {{test.readabilityOperator}} {{test.schoolLevel}}
+  data:
+    __stepOrder: 4

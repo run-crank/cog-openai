@@ -1,0 +1,20 @@
+scenario: Contextual Ambiguity Resolution Test in Coding Academy Customer Service
+description: >
+  Evaluate the model's ability to discern and respond accurately to ambiguous queries within the context of a coding academy. The scenario involves a customer with four children enrolled in the academy seeking to cancel the subscription for one of their sons. The challenge is to assess how well the model can understand the context and request specific information, such as the full name and username of the son, to generate a precise and relevant response within the given constraint of two sentences.
+
+tokens:
+  test:
+    prompt: Assume you are a customer service chatbot of coding academy and only respond in 2 sentences. The customer has four children enrolled in the academy and would like to cancel the subscription for a son.
+    semanticSimilarityExpectation: provide with the full name and username of the son
+    equalsOperator: contain
+    equalsExpectation: name
+    semanticSimilarity: 0.1
+    model: gpt-4-1106-preview
+
+steps:
+  - step: OpenAI model {{test.model}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should be greater than {{test.semanticSimilarity}}
+    data:
+      __stepOrder: 1
+  - step: OpenAI model {{test.model}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+    data:
+      __stepOrder: 2

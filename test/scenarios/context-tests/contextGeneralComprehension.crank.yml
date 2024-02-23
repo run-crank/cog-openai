@@ -1,0 +1,16 @@
+scenario: Contextual Comprehension Test in General Context
+description: >
+   Evaluate the model's ability to grasp contextual cues within a given framework. The task is to gauge the model's capacity to discern and respond accurately to a scenario involving a dinner with friends at a restaurant, followed by engaging conversations at a coffee shop. The aim is to assess if the model can understand the context and provide a relevant response.
+   
+tokens:
+  test:
+    prompt: Last night, I had dinner with friends at a restaurant. After the meal, we headed to a coffee shop where we engaged in interesting conversations. While sipping coffee and losing track of time, I suddenly received a phone call and had to leave hastily. What did I do last night?
+    semanticSimilarityExpectation:  had dinner with friends at a restaurant
+    operator: contain
+    expectation: booking reference number
+    semanticSimilarity: 0.1
+    model: gpt-4-1106-preview
+steps:
+- step: OpenAI model {{test.model}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should be greater than {{test.semanticSimilarity}}
+  data:
+    __stepOrder: 1

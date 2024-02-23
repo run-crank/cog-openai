@@ -1,0 +1,25 @@
+scenario: iPhone 13 CPU chip inquiry
+description: >
+  Test the models' ability to correctly identify the CPU chip used in the iPhone 13
+
+tokens:
+  test:
+    prompt: In one sentence, what chip is used in the iPhone 13?
+    modela: gpt-4-0613
+    modelb: gpt-4-1106-preview
+    modelc: gpt-4-0125-preview
+    semanticSimilarityExpectation: The iPhone 13 features an A15 bionic chip
+    semanticSimilarityOperator: be greater than
+    semanticSimilarity: 0.5  
+
+steps:
+- step: OpenAI model {{test.modela}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
+  data:
+    __StepOrder: 1
+- step: OpenAI model {{test.modelb}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
+  data:
+    __StepOrder: 2
+- step: OpenAI model {{test.modelc}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
+  data:
+    __StepOrder: 3
+

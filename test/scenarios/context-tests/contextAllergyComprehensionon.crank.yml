@@ -1,0 +1,24 @@
+scenario: Allergy context comprehension test
+description: >
+  Test the models' ability to understand context of a nut allergy
+
+tokens:
+  test:
+    prompt: Timothy is allergic to nuts. Can Timothy eat a peanut butter sandwich? Answer YES or NO
+    modela: gpt-4-0613
+    modelb: gpt-4-1106-preview
+    modelc: gpt-4-0125-preview
+    equalsExpectation: NO
+    equalsOperator: be
+
+steps:
+- step: OpenAI model {{test.modela}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __StepOrder: 1
+- step: OpenAI model {{test.modelb}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __StepOrder: 2
+- step: OpenAI model {{test.modelc}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __StepOrder: 3
+

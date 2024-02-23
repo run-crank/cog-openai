@@ -1,0 +1,27 @@
+scenario: Loan payment calculation inquiry context
+description: >
+  Test the models' ability to determine the correct answer to a loan payment calculation inquiry.
+
+tokens:
+  test:
+    prompt: Person A has a loan of $1000 and is paying it off at a rate of 50 dollars per month. 
+            Person B has a loan of $2000 and is paying it off at a rate of 200 dollars per month. 
+            Who will pay off their loan first? Answer as A or B only.
+    modela: gpt-4-0613
+    modelb: gpt-4-1106-preview
+    modelc: gpt-4-0125-preview
+    equalsExpectation: B
+    equalsOperator: be
+    
+
+steps:
+- step: OpenAI model {{test.modela}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __StepOrder: 1
+- step: OpenAI model {{test.modelb}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __StepOrder: 2
+- step: OpenAI model {{test.modelc}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __StepOrder: 3
+

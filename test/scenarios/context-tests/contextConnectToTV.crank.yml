@@ -1,0 +1,19 @@
+scenario: Contextual Comprehension Test for Tech Support Chatbot of TV Manufacturer
+description: >
+  Evaluate the models' ability to understand contextual cues in a tech support scenario for Samsung. The task is to assess the model's capacity to discern and respond accurately to a customer inquiry about connecting a Windows laptop to a TV. The evaluation includes checking if the model suggests the use of an HDMI cable and the option of Miracast.
+
+tokens:
+  test:
+    prompt: Assume you are a tech support chatbot of Samsung. A customer sent a message that says 'How can I connect my windows laptop to my TV'
+    equalsOperator: contain
+    equalsExpectationA: HDMI cable
+    equalsExpectationB: Miracast
+    semanticSimilarity: 0.1
+    model: gpt-4-1106-preview
+steps:
+- step: OpenAI model {{test.model}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectationA}}
+  data:
+    __stepOrder: 1
+- step: OpenAI model {{test.model}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectationB}}
+  data:
+    __stepOrder: 2

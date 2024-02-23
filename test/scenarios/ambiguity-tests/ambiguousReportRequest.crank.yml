@@ -1,0 +1,24 @@
+scenario: Request for a report with unclear requirements
+description: >
+  Test for ability to handle unclear task requirements
+
+tokens:
+  test:
+    prompt: can you generate a report
+    modela: gpt-4-0613
+    modelb: gpt-4-1106-preview
+    modelc: gpt-4-0125-preview
+    semanticSimilarityExpectation: please clarify the report requirements
+    semanticSimilarityOperator: be greater than
+    semanticSimilarity: 0.1
+steps:
+
+  - step: OpenAI model {{test.modela}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
+    data:
+      __stepOrder: 1
+  - step: OpenAI model {{test.modelb}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
+    data:
+      __stepOrder: 2
+  - step: OpenAI model {{test.modelc}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
+    data:
+      __stepOrder: 3

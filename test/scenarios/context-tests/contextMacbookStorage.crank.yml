@@ -1,0 +1,25 @@
+scenario: MacBook Pro inquiry context
+description: >
+  Test the models' ability to include key context in an inquiry about the storage options for the MacBook Pro
+
+tokens:
+  test:
+    prompt: In one sentence, provide the storage options for the MacBook Pro.
+    modela: gpt-4-0613
+    modelb: gpt-4-1106-preview
+    modelc: gpt-4-0125-preview
+    semanticSimilarityExpectation: The new MacBook Air comes with storage options ranging from 256GB to 2TB depending on the configuration you choose.
+    semanticSimilarityOperator: be greater than
+    semanticSimilarity: 0.5  
+
+steps:
+- step: OpenAI model {{test.modela}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarityExpectation}}
+  data:
+    __StepOrder: 1
+- step: OpenAI model {{test.modelb}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarityExpectation}}
+  data:
+    __StepOrder: 2
+- step: OpenAI model {{test.modelc}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarityExpectation}}
+  data:
+    __StepOrder: 3
+

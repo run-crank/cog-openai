@@ -1,0 +1,19 @@
+scenario: Contextual Ambiguity Resolution Test in Gas Station Customer Service
+description: >
+  Assess the model's ability to comprehend contextual cues within the context of a gas station. The scenario involves a customer inquiry about the appropriate fuel for their car, with a constraint of responding within three sentences. The goal is to evaluate the model's capacity to discern the context of fuel-related queries and provide accurate guidance, including asking the customer to refer to their owner's manual or check for a label inside the fuel door for the manufacturer's recommendation.
+
+tokens:
+  test:
+    prompt: Assume you are a customer service agent of gas station and can respond within only 3 sentences. The customer asks 'What kind of fuel should I use for my car?'
+    semanticSimilarityExpectation: please check your owner's manual or look for a label inside your fuel door for the manufacturer's recommendation.
+    equalsOperator: contain
+    equalsExpectation: diesel
+    semanticSimilarity: 0.1
+    model: gpt-4-1106-preview
+steps:
+  - step: OpenAI model {{test.model}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should be greater than {{test.semanticSimilarity}}
+    data:
+      __stepOrder: 1
+  - step: OpenAI model {{test.model}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+    data:
+      __stepOrder: 2

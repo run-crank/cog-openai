@@ -1,0 +1,24 @@
+scenario: Compare Gpt 3.5 turbo 1106 and Gpt 4 0613
+description: >
+  Compare Gpt 3.5 turbo 1106 and Gpt 4 0613
+
+tokens:
+  test:
+    prompt: Who was the first person to land on the moon and what year was it?
+    modela: gpt-3.5-turbo-1106
+    modelb: gpt-4-0613
+    equalsOperator: match
+    equalsExpectation: Neil Armstrong | 1969
+    semanticSimilarityOperator: be greater than
+    semanticSimilarityExpectation: The first person to land on the moon was Neil Armstrong in 1969.
+    semanticSimilarity: 0.5
+steps:
+- step: OpenAI model {{test.modela}} and {{test.modelb}} responses to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __stepOrder: 1
+- step: OpenAI model {{test.modela}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
+  data:
+    __stepOrder: 2
+- step: OpenAI model {{test.modelb}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
+  data:
+    __stepOrder: 3

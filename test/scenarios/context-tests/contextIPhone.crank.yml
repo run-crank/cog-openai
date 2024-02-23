@@ -1,0 +1,19 @@
+scenario: Contextual Gadget Identification Test
+description: >
+  Evaluate the model's capacity to infer the user's new phone, without explicit hints, solely based on the context of the user mentioning recent engagement with electronic gadgets like an Apple Watch and AirPods.
+
+tokens:
+  test:
+    prompt: I've recently gotten into electronic gadgets. I sold my old phone and got a new one along with an Apple Watch and Airpods. Can you guess what my new phone is?
+    semanticSimilarityExpectation: it's a reasonable guess that your new phone is an iPhone.
+    equalsOperator: contain
+    equalsExpectation: IPhone
+    semanticSimilarity: 0.1
+    model: gpt-4-1106-preview
+steps:
+- step: OpenAI model {{test.model}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should be greater than {{test.semanticSimilarity}}
+  data:
+    __stepOrder: 1
+- step: OpenAI model {{test.model}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __stepOrder: 2

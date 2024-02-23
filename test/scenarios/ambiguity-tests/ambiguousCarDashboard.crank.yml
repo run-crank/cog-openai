@@ -1,0 +1,14 @@
+scenario: Contextual Ambiguity Resolution Test in Tech Support for Car Dashboard
+description: >
+  Assess the model's ability to comprehend context in a tech support scenario. The evaluation involves a customer inquiry related to a blinking sign in the car dashboard with a constraint of responding within two sentences. The goal is to determine the model's proficiency in understanding the  context of automotive issues and providing concise yet relevant responses.
+
+tokens:
+  test:
+    prompt: Assume you are a tech support agent of Toyota and can respond within only 2 sentences. The customer asks 'Why a sign in the dashboard keeps blinking? I cannot find in the online manual.'
+    semanticSimilarityExpectation: Please provide the exact symbol or description of it
+    semanticSimilarity: 0.1
+    model: gpt-4-1106-preview
+steps:
+  - step: OpenAI model {{test.model}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should be greater than {{test.semanticSimilarity}}
+    data:
+      __stepOrder: 1

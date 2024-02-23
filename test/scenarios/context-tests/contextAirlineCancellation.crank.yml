@@ -1,0 +1,19 @@
+scenario: Contextual Understanding Test for Airline Customer Service Chatbot
+description: >
+  Evaluate the model's capacity to understand and respond to contextual cues in the context of an airline customer service scenario.
+
+tokens:
+  test:
+    prompt: Assume you are a customer service chatbot of airline company. A customer sent a message that says 'I want to cancel my flight ticket'
+    semanticSimilariityExpectation: I'm sorry to hear that you need to cancel your flight ticket. I can certainly help you with that. Could you please provide me with your booking reference number or ticket number along with the name of the passenger as it appears on the ticket? This information will help me locate your reservation and assist you with the cancellation process. If you have any specific questions or concerns about the cancellation, please let me know and I'll do my best to address them.
+    equalsOperator: contain
+    equalsExpectation: booking reference number
+    semanticSimilarity: 0.1
+    model: gpt-4-1106-preview
+steps:
+- step: OpenAI model {{test.model}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilariityExpectation}}" should be greater than {{test.semanticSimilarity}}
+  data:
+    __stepOrder: 1
+- step: OpenAI model {{test.model}} response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.equalsExpectation}}
+  data:
+    __stepOrder: 2

@@ -1,0 +1,14 @@
+scenario: Contextual Ambiguity Resolution Test in Medical Clinic Support
+description: >
+  Assess the model's proficiency in grasping contextual cues within the context of a medical clinic. The scenario involves a customer requesting a receipt for their last visit without providing specific details. The objective is to evaluate how well the model can seek necessary information such as the customer's full name and the date of the visit, to generate an accurate and relevant response.
+
+tokens:
+  test:
+    prompt: Assume you are a customer service chatbot of a medical clinic. A customer sent a message that says 'I want to get my receipt for the last visit'
+    semanticSimilarityExpectation: Could you please provide me with your full name and the date of your visit?
+    semanticSimilarity: 0.1
+    model: gpt-4-1106-preview
+steps:
+  - step: OpenAI model {{test.model}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should be greater than {{test.semanticSimilarity}}
+    data:
+      __stepOrder: 1

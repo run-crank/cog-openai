@@ -1,0 +1,25 @@
+scenario: Ask a game level related question without information about the game
+description: >
+  Test for ability to understand the context of a game level inquiry and request for the game name
+  when prompted with an ambiguous question about a game level
+
+tokens:
+  test:
+    prompt: This level is so challenging, I need help.
+    modela: gpt-4-0613
+    modelb: gpt-4-1106-preview
+    modelc: gpt-4-0125-preview
+    semanticSimilarityExpectation: Assuming you are referring to a level of a game, please provide the name of the game so I may help you.
+    semanticSimilarityOperator: be greater than
+    semanticSimilarity: 0.2
+
+steps:
+  - step: OpenAI model {{test.modela}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
+    data:
+      __StepOrder: 1
+  - step: OpenAI model {{model.b}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
+    data:
+      __StepOrder: 2
+  - step: OpenAI model {{model.c}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
+    data:
+      __StepOrder: 3

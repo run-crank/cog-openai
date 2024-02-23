@@ -1,0 +1,24 @@
+scenario: Ask a sports related question without key context
+description: >
+  Test for ability to request for the correct year when prompted with an ambiguous question about who won the NBA championship
+
+tokens:
+  test:
+    prompt: Who were the NBA champions in?
+    modela: gpt-4-0613
+    modelb: gpt-4-1106-preview
+    modelc: gpt-4-0125-preview
+    semanticSimilarityExpectation: Please provide the year for which you want to know who won the NBA championship.
+    semanticSimilarityOperator: be greater than
+    semanticSimilarity: 0.2
+
+steps:
+  - step: OpenAI model {{test.modela}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
+    data:
+      __StepOrder: 1
+  - step: OpenAI model {{test.modelb}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
+    data:
+      __StepOrder: 2
+  - step: OpenAI model {{test.modelc}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
+    data:
+      __StepOrder: 3
