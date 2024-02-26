@@ -1,18 +1,18 @@
 import * as grpc from '@grpc/grpc-js';
 import { Struct, Value } from 'google-protobuf/google/protobuf/struct_pb';
 import * as fs from 'fs';
-
 import { Field, StepInterface } from './base-step';
-
 import { ClientWrapper } from '../client/client-wrapper';
 import { ICogServiceServer } from '../proto/cog_grpc_pb';
-import { ManifestRequest, CogManifest, Step, RunStepRequest, RunStepResponse, FieldDefinition,
-  StepDefinition } from '../proto/cog_pb';
+import { ManifestRequest, CogManifest, Step, RunStepRequest, RunStepResponse, FieldDefinition, StepDefinition, StepRecord, TableRecord } from '../proto/cog_pb';
+import { AzureBlob } from '../log/azure-blob';
+import { AzureBlobContainer } from '../log/azure-blob-container';
 
 export class Cog implements ICogServiceServer {
   private steps: StepInterface[];
+  private blobContainer: AzureBlobContainer = new AzureBlobContainer("openai-cog-logs")
 
-  constructor (private clientWrapperClass, private stepMap: Record<string, any> = {}) {
+  constructor(private clientWrapperClass, private stepMap: Record<string, any> = {}) {
     // Dynamically reads the contents of the ./steps folder for step definitions and makes the
     // corresponding step classes available on this.steps and this.stepMap.
     // tslint:disable-next-line:max-line-length
@@ -53,7 +53,6 @@ export class Cog implements ICogServiceServer {
     const stepDefinitions: StepDefinition[] = this.steps.map((step: StepInterface) => {
       return step.getDefinition();
     });
-
     manifest.setName(pkgJson.cog.name);
     manifest.setLabel(pkgJson.cog.label);
     manifest.setVersion(pkgJson.version);
@@ -97,13 +96,15 @@ export class Cog implements ICogServiceServer {
 
       const step: Step = runStepRequest.getStep();
       const response: RunStepResponse = await this.dispatchStep(step, call.metadata, client);
-      call.write(response);
 
+      call.write(response);
+      this.exportToAzureBlobStorage(response);
       processing = processing - 1;
 
       // If this was the last step to process and the client has ended the stream, then end our
       // stream as well.
       if (processing === 0 && clientEnded) {
+        // await this.exportToAzureBlobStorage(blobContent);
         call.end();
       }
     });
@@ -128,6 +129,9 @@ export class Cog implements ICogServiceServer {
   ) {
     const step: Step = call.request.getStep();
     const response: RunStepResponse = await this.dispatchStep(step, call.metadata);
+
+    this.exportToAzureBlobStorage(response);
+
     callback(null, response);
   }
 
@@ -170,4 +174,35 @@ export class Cog implements ICogServiceServer {
     return new this.clientWrapperClass(auth);
   }
 
+  private exportToAzureBlobStorage(response: RunStepResponse) {
+
+    let blobContent = {
+      outcome: response.getOutcome(),
+      message: response.getMessageFormat()
+    };
+
+    const records = response.getRecordsList();
+
+    records.forEach(record => {
+      if (record.getValueCase() === StepRecord.ValueCase.KEY_VALUE) {
+        const keyValue = (record.getKeyValue() || new Struct()).toJavaScript()
+        const keys = Object.keys(keyValue)
+        keys.forEach(key => {
+          blobContent[key] = keyValue[key]
+        })
+      }
+      
+      if (record.getValueCase() === StepRecord.ValueCase.TABLE) { 
+        const table = record.getTable() || new TableRecord()
+          const tableHeaders = (table.getHeaders() || new Struct()).toJavaScript()
+          const rows = table.getRowsList().map(row => row.toJavaScript())
+          Object.keys(tableHeaders).forEach(header => {
+            blobContent[header] = rows.map(row => row[header])
+          })
+        }
+    })
+
+    const blob = new AzureBlob(blobContent);
+    this.blobContainer.uploadBlob(blob);
+  }
 }

@@ -17,12 +17,13 @@ export class CompletionAwareMixin {
       if (functions) {
         requestObject['functions'] = functions;
       }
+
       const response = await this.client.chat.completions.create(requestObject);
       if (!response && !response.choices && !response.choices[0] && !response.choices[0].message) {
         throw new Error(`Error response from OpenAI API: ${JSON.stringify(response)}`);
       }
       const endTime = Date.now();
-      const responseWrapper = new ChatCompletionWrapper(response, endTime - startTime);
+      const responseWrapper = new ChatCompletionWrapper(response, endTime - startTime, requestObject);
       return responseWrapper;
     } catch (error) {
       throw new Error(`Error response from OpenAI API: ${error.message}`);
