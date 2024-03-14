@@ -4,7 +4,7 @@ description: >
 
 tokens:
   test:
-    prompt: Customer says "I have been using iPhone 10 and AirPods 1 so far, and recently, I used the latest MacBook. However, I am extremely disappointed with the performance of this MacBook, and the program execution speed is much slower than advertised. Additionally, a dent near the charging port, which seems to have occurred during the delivery process, has been discovered. Unfortunately, I have no intention of using this product. Furthermore, it has not been three days since the purchase date. I am attaching my order number and credit card information here." How many Apple devices has this person purchased in total, and what is the intention behind writing this post?" answer in 2-3 sentences.
+    prompt: Customer says "I have been using iPhone 10 and AirPods 1 so far, and recently, I used the latest MacBook. However, I am extremely disappointed with the performance of this MacBook, and the program execution speed is much slower than advertised. Additionally, a dent near the charging port, which seems to have occurred during the delivery process, has been discovered. Unfortunately, I have no intention of using this product. Furthermore, it has not been three days since the purchase date. I am attaching my order number and credit card information here." How many Apple devices has this person purchased in total, and what is the intention behind writing this post?" answer in 2 or 3 sentences.
     equalsOperator: contain
     equalsExpectation: three
     semanticSimilarityExpectation: likely seek a resolution such as a return, exchange, or repair since the purchase was made recently. 
