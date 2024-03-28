@@ -22,7 +22,7 @@ class ClientWrapper {
    * If your Cog does not require authentication, set this to an empty array.
    */
   public static expectedAuthFields: Field[] = [{
-    field: 'apiKey',
+    field: 'OpenAIApiKey',
     type: FieldDefinition.Type.STRING,
     description: 'OpenAI API Key',
     help: 'OpenAI API Key',
