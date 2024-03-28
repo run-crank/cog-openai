@@ -91,7 +91,7 @@ export class CompletionWordCount extends BaseStep implements StepInterface {
       message['content'] = prompt;
       messages.push(message);
       const completion = await this.client.getChatCompletion(model, messages);
-      const response = completion.choices[0].message.content;
+      const response = completion.text_response;
       const actual = CompletionWordCount.getWordCount(response);
       const result = this.assert(operator, actual.toString(), expectation.toString(), 'response');
       const returnObj = {

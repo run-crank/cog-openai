@@ -83,7 +83,7 @@ export class CompletionEquals extends BaseStep implements StepInterface {
       message['content'] = prompt;
       messages.push(message);
       const completion = await this.client.getChatCompletion(model, messages);
-      const actual = completion.choices[0].message.content;
+      const actual = completion.text_response;
       const result = this.assert(operator, actual, expectation, 'response');
       const records = this.createRecords(completion, stepData.__stepOrder);
       return result.valid ? this.pass(result.message, [], records) : this.fail(result.message, [], records);

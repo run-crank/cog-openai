@@ -102,7 +102,7 @@ export class CompletionSemanticSimilarity extends BaseStep implements StepInterf
       message['content'] = prompt;
       messages.push(message);
       const completion = await this.client.getChatCompletion(model, messages);
-      const response = completion.choices[0].message.content;
+      const response = completion.text_response;
       const levensteinDistance = CompletionSemanticSimilarity.levensteinDistance(response, compareText);
       const diceCoefficient = stringSimilarity.compareTwoStrings(response, compareText);
       const result = this.assert(operator, levensteinDistance.toString(), expectedSimilarity.toString(), 'response');

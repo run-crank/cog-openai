@@ -89,10 +89,10 @@ export class CompletionEqualsAb extends BaseStep implements StepInterface {
       message['content'] = prompt;
       messages.push(message);
       const completiona = _.cloneDeep(await this.client.getChatCompletion(modela, messages));
-      const actuala = completiona.choices[0].message.content;
+      const actuala = completiona.text_response;
       const resulta = this.assert(operator, actuala, expectation, 'responsea');
       const completionb = _.cloneDeep(await this.client.getChatCompletion(modelb, messages));
-      const actualb = completionb.choices[0].message.content;
+      const actualb = completionb.text_response;
       const resultb = this.assert(operator, actualb, expectation, 'responseb');
       const result = resulta.valid && resultb.valid;
 

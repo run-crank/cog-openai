@@ -36,7 +36,7 @@ export class CompletionTokenCost extends BaseStep implements StepInterface {
       field: 'type',
       type: FieldDefinition.Type.STRING,
       optionality: FieldDefinition.Optionality.OPTIONAL,
-      description: 'Specify which token output to show (prompt/completion/total)',
+      description: 'Specify which token output to show (input/output/total)',
     },
     {
       field: 'operator',
@@ -47,7 +47,7 @@ export class CompletionTokenCost extends BaseStep implements StepInterface {
     {
       field: 'expectation',
       type: FieldDefinition.Type.NUMERIC,
-      description: 'Expected GPT prompt/response/total token cost',
+      description: 'Expected GPT input/output/total token cost',
       optionality: FieldDefinition.Optionality.OPTIONAL,
     },
   ];
@@ -87,7 +87,7 @@ export class CompletionTokenCost extends BaseStep implements StepInterface {
     },
   ];
 
-  private acceptedTokentype: Array<String> = ['prompt', 'completion', 'total'];
+  private acceptedTokentype: Array<String> = ['input', 'output', 'total'];
 
   async executeStep(step: Step) {
     const stepData: any = step.getData() ? step.getData().toJavaScript() : {};
@@ -111,7 +111,7 @@ export class CompletionTokenCost extends BaseStep implements StepInterface {
       const completion = await this.client.getChatCompletion(model, messages);
       const usage = completion?.usage;
       const actualUsage = usage[type];
-      const response = completion.choices[0].message.content;
+      const response = completion.text_response;
       const result = this.assert(operator, actualUsage.toString(), expectation.toString(), 'response');
       const returnObj = {
         model,
