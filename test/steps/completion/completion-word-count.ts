@@ -67,6 +67,7 @@ describe('CompletionWordCount', () => {
           choices: [{ message: { content: 'this is five word response' } }], // Mock response with 5 words
           usage: { completion_tokens: 263, prompt_tokens: 17, total_tokens: 280 },
           created: '1698287166',
+          request_payload: { prompt: 'Hello, GPT!' },
         }));
       });
 
@@ -92,6 +93,7 @@ describe('CompletionWordCount', () => {
           choices: [{ message: { content: 'three word response' } }], // Mock response
           usage: { completion_tokens: 263, prompt_tokens: 17, total_tokens: 280 },
           created: '1698287166',
+          request_payload: { prompt: 'Hello, GPT!' },
         }));
       });
 

@@ -69,6 +69,7 @@ describe('CompletionResponseTime', () => {
               choices: [{ message: { content: 'this is five word response' } }],
               usage: { completion_tokens: 263, prompt_tokens: 17, total_tokens: 280 },
               created: '1698287166',
+              request_payload: { prompt: 'Hello, GPT!' },
             });
           }, 500); // Delay of 500 milliseconds
         }));
@@ -98,6 +99,7 @@ describe('CompletionResponseTime', () => {
               choices: [{ message: { content: 'this is five word response' } }],
               usage: { completion_tokens: 263, prompt_tokens: 17, total_tokens: 280 },
               created: '1698287166',
+              request_payload: { prompt: 'Hello, GPT!' },
             });
           }, 500); // Delay of 500 milliseconds
         }));

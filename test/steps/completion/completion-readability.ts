@@ -66,6 +66,7 @@ describe('CompletionReadability', () => {
           choices: [{ message: { content: 'Some high readability text.' } }],
           usage: { completion_tokens: 263, prompt_tokens: 17, total_tokens: 280 },
           created: '1698287166',
+          request_payload: { prompt: 'Hello, GPT!' },
         }));
       });
 
@@ -90,6 +91,7 @@ describe('CompletionReadability', () => {
           choices: [{ message: { content: 'US politics refers to how our country is run and the different people who make decisions. We have a system called democracy, where citizens get to choose their leaders. The President is the highest leader and is elected by the people. They make important decisions about the country.' } }],
           usage: { completion_tokens: 263, prompt_tokens: 17, total_tokens: 280 },
           created: '1698287166',
+          request_payload: { prompt: 'Hello, GPT!' },
         }));
       });
 

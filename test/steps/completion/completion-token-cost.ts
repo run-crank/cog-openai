@@ -72,6 +72,7 @@ describe('CompletionTokenCost', () => {
           choices: [{ message: { content: 'two' } }],
           usage: { completion_tokens: 1, prompt_tokens: 6, total_tokens: 7 },
           created: '1698287166',
+          request_payload: { prompt: 'Hello, GPT!' },
         }));
       });
 
@@ -98,6 +99,7 @@ describe('CompletionTokenCost', () => {
           choices: [{ message: { content: 'this is five word response' } }],
           usage: { completion_tokens: 5, prompt_tokens: 6, total_tokens: 11 },
           created: '1698287166',
+          request_payload: { prompt: 'Hello, GPT!' },
         }));
       });
 

@@ -43,13 +43,14 @@ describe('CompletionEqualsAb', () => {
           expectation: 'expected response',
           operator: 'be',
         }));
-
         // Mocking successful response for both model A and B
         clientWrapperStub.getChatCompletion.withArgs('gpt-model-a').returns(Promise.resolve({
           choices: [{ message: { content: 'expected response' } }],
+          request_payload: { prompt: 'Hello, GPT!' },
         }));
         clientWrapperStub.getChatCompletion.withArgs('gpt-model-b').returns(Promise.resolve({
           choices: [{ message: { content: 'expected response' } }],
+          request_payload: { prompt: 'Hello, GPT!' },
         }));
       });
 
@@ -73,9 +74,11 @@ describe('CompletionEqualsAb', () => {
 
         clientWrapperStub.getChatCompletion.withArgs('gpt-model-a').returns(Promise.resolve({
           choices: [{ message: { content: 'unexpected response from A' } }],
+          request_payload: { prompt: 'Hello, GPT!' },
         }));
         clientWrapperStub.getChatCompletion.withArgs('gpt-model-b').returns(Promise.resolve({
           choices: [{ message: { content: 'unexpected response from B' } }],
+          request_payload: { prompt: 'Hello, GPT!' },
         }));
       });
 
