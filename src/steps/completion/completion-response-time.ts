@@ -101,7 +101,7 @@ export class CompletionResponseTime extends BaseStep implements StepInterface {
       messages.push(message);
       const completion = await this.client.getChatCompletion(model, messages);
       const responseTime = completion.response_time;
-      const response = completion.choices[0].message.content;
+      const response = completion.text_response;
       const result = this.assert(operator, responseTime.toString(), expectation.toString(), 'response');
       const returnObj = {
         model,

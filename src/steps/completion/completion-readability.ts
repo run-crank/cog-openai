@@ -144,7 +144,7 @@ export class CompletionReadability extends BaseStep implements StepInterface {
       message['content'] = prompt;
       messages.push(message);
       const completion = await this.client.getChatCompletion(model, messages);
-      const response = completion.choices[0].message.content;
+      const response = completion.text_response;
       const fleschReadingEaseScore = CompletionReadability.getFleschReadingEaseScore(response);
       const fleschReadingEaseScoreObj = CompletionReadability.fleschScoreToSchoolLevel(fleschReadingEaseScore);
       const expectedScore = CompletionReadability.fleschSchoolLevelToScore(expectedSchoolLevel);

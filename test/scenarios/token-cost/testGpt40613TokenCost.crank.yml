@@ -6,7 +6,7 @@ tokens:
     trivialPrompt: give me a summary of the bee movie
     operator: be less than
     expectation: 250
-    type: completion
+    type: output
     modela: gpt-4-0613
     modelb: gpt-4-1106-preview
 steps:

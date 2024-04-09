@@ -1,12 +1,12 @@
 import openai from 'openai';
-import { ChatCompletionWrapper } from '../open-ai-response-wrapper';
+import { ClientResponseWrapper } from '../client-response-wrapper';
 
 export class CompletionAwareMixin {
   clientReady: Promise<boolean>;
 
   client: openai;
 
-  public async getChatCompletion(model: string, messages: any[], functions?: any[]): Promise<any> {
+  public async getChatCompletion(model: string, messages: any[], functions?: any[]): Promise<ClientResponseWrapper> {
     const startTime = Date.now();
     await this.clientReady;
     try {
@@ -23,7 +23,7 @@ export class CompletionAwareMixin {
         throw new Error(`Error response from OpenAI API: ${JSON.stringify(response)}`);
       }
       const endTime = Date.now();
-      const responseWrapper = new ChatCompletionWrapper(response, endTime - startTime, requestObject);
+      const responseWrapper = new ClientResponseWrapper(response, endTime - startTime, requestObject);
       return responseWrapper;
     } catch (error) {
       throw new Error(`Error response from OpenAI API: ${error.message}`);
