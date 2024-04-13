@@ -53,60 +53,48 @@ describe('CompletionResponseTime', () => {
   describe('ExecuteStep', () => {
     describe('GPT prompt response meets response time expectation', () => {
       beforeEach(() => {
-        // Setup for the scenario where the GPT response meets the expected response time
-        const expectedModel: string = 'gpt-model';
-        const expectedPrompt: string = 'Hello, GPT!';
         protoStep.setData(Struct.fromJavaScript({
-          model: expectedModel,
-          prompt: expectedPrompt,
+          model: 'gpt-model',
+          prompt: 'Hello, GPT!',
           expectation: 1000, // expected maximum delay of 1000 milliseconds
           operator: 'be less than',
         }));
 
-        clientWrapperStub.getChatCompletion.returns(new Promise((resolve, reject) => {
-          setTimeout(() => {
-            resolve({
-              choices: [{ message: { content: 'this is five word response' } }],
-              usage: { completion_tokens: 263, prompt_tokens: 17, total_tokens: 280 },
-              created: '1698287166',
-              request_payload: { prompt: 'Hello, GPT!' },
-            });
-          }, 500); // Delay of 500 milliseconds
-        }));
+        clientWrapperStub.getChatCompletion.resolves({
+          text_response: 'this is five word response',
+          response_time: 500, // Delay of 500 milliseconds
+          usage: { completion_tokens: 263, prompt_tokens: 17, total_tokens: 280 },
+          created: '1698287166',
+          request_payload: { prompt: 'Hello, GPT!' },
+        });
       });
 
       it('should respond with pass', async () => {
-        const response: RunStepResponse = await stepUnderTest.executeStep(protoStep);
+        const response = await stepUnderTest.executeStep(protoStep);
         expect(response.getOutcome()).to.equal(RunStepResponse.Outcome.PASSED);
       });
     });
 
     describe('GPT prompt response does not meet response time expectation', () => {
       beforeEach(() => {
-        // Setup for the scenario where the GPT response does not meet the expected response time
-        const expectedModel: string = 'gpt-model';
-        const expectedPrompt: string = 'Hello, GPT!';
         protoStep.setData(Struct.fromJavaScript({
-          model: expectedModel,
-          prompt: expectedPrompt,
+          model: 'gpt-model',
+          prompt: 'Hello, GPT!',
           expectation: 10, // unrealistic response time expectation
           operator: 'be less than',
         }));
 
-        clientWrapperStub.getChatCompletion.returns(new Promise((resolve, reject) => {
-          setTimeout(() => {
-            resolve({
-              choices: [{ message: { content: 'this is five word response' } }],
-              usage: { completion_tokens: 263, prompt_tokens: 17, total_tokens: 280 },
-              created: '1698287166',
-              request_payload: { prompt: 'Hello, GPT!' },
-            });
-          }, 500); // Delay of 500 milliseconds
-        }));
+        clientWrapperStub.getChatCompletion.resolves({
+          text_response: 'this is five word response',
+          response_time: 500, // Delay of 500 milliseconds
+          usage: { completion_tokens: 263, prompt_tokens: 17, total_tokens: 280 },
+          created: '1698287166',
+          request_payload: { prompt: 'Hello, GPT!' },
+        });
       });
 
       it('should respond with fail', async () => {
-        const response: RunStepResponse = await stepUnderTest.executeStep(protoStep);
+        const response = await stepUnderTest.executeStep(protoStep);
         expect(response.getOutcome()).to.equal(RunStepResponse.Outcome.FAILED);
       });
     });

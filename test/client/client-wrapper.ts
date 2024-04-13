@@ -3,6 +3,7 @@ import { default as sinon } from 'ts-sinon';
 import * as sinonChai from 'sinon-chai';
 import 'mocha';
 
+import { CompletionAwareMixin } from '../../src/client/mixins/completion-aware';
 import { ClientWrapper } from '../../src/client/client-wrapper';
 import { Metadata } from '@grpc/grpc-js';
 
@@ -37,6 +38,10 @@ describe('ClientWrapper', () => {
   });
 
   describe('CompletionAware', () => {
+    let clientWrapperUnderTest;
+    let openAiClientStub;
+    let openAiConstructorStub;
+  
     beforeEach(() => {
       openAiClientStub = {
         chat: {
@@ -45,25 +50,40 @@ describe('ClientWrapper', () => {
           },
         },
       };
-      openAiClientStub.chat.completions.create.returns(Promise.resolve());
-      openAiClientStub.chat.completions.create.then = sinon.stub();
-      openAiClientStub.chat.completions.create.then.resolves();
-      openAiConstructorStub.returns(openAiClientStub);
+      // Mock the OpenAI client constructor
+      openAiConstructorStub = sinon.stub().returns(openAiClientStub);
+      // Create an instance of your class under test
+      clientWrapperUnderTest = new CompletionAwareMixin();
+      clientWrapperUnderTest.client = openAiClientStub;
+      clientWrapperUnderTest.clientReady = Promise.resolve(true); // Simulate client being ready
     });
-
-    it('getChatCompletion', async () => {
-      clientWrapperUnderTest = new ClientWrapper(metadata, openAiConstructorStub);
+  
+    it('successfully retrieves chat completion', async () => {
       const sampleModel = 'gpt-3.5-turbo';
       const sampleMessages = [{ 'role': 'user', 'content': 'What\'s the weather like in Boston?' }];
       openAiClientStub.chat.completions.create.resolves({
         choices: [
           {
-            message: 'Some message',
+            message: 'It\'s sunny in Boston today!',
           },
         ],
       });
-      await clientWrapperUnderTest.getChatCompletion(sampleModel, sampleMessages);
-      expect(openAiClientStub.chat.completions.create).to.have.been.calledWith({ model: sampleModel, messages: sampleMessages });
+  
+      const response = await clientWrapperUnderTest.getChatCompletion(sampleModel, sampleMessages);
+      expect(response.choices[0].message).to.equal('It\'s sunny in Boston today!');
+      expect(openAiClientStub.chat.completions.create).to.have.been.calledWith({
+        model: sampleModel,
+        messages: sampleMessages,
+      });
+    });
+  
+    it('handles API errors by throwing', async () => {
+      openAiClientStub.chat.completions.create.rejects(new Error('API failure'));
+      const sampleModel = 'gpt-3.5-turbo';
+      const sampleMessages = [{ 'role': 'user', 'content': 'What\'s the weather like in Boston?' }];
+  
+      await expect(clientWrapperUnderTest.getChatCompletion(sampleModel, sampleMessages))
+        .to.eventually.be.rejectedWith('Error response from OpenAI API: API failure');
     });
   });
 

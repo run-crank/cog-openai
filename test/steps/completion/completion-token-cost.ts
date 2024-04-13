@@ -65,11 +65,11 @@ describe('CompletionTokenCost', () => {
           prompt: expectedPrompt,
           type: 'completion',
           operator: 'be',
-          expectation: 1
+          expectation: 7
         }));
 
         clientWrapperStub.getChatCompletion.returns(Promise.resolve({
-          choices: [{ message: { content: 'two' } }],
+          text_response: 'two',
           usage: { completion_tokens: 1, prompt_tokens: 6, total_tokens: 7 },
           created: '1698287166',
           request_payload: { prompt: 'Hello, GPT!' },
@@ -96,7 +96,7 @@ describe('CompletionTokenCost', () => {
         }));
 
         clientWrapperStub.getChatCompletion.returns(Promise.resolve({
-          choices: [{ message: { content: 'this is five word response' } }],
+          text_response: 'this is five word response',
           usage: { completion_tokens: 5, prompt_tokens: 6, total_tokens: 11 },
           created: '1698287166',
           request_payload: { prompt: 'Hello, GPT!' },

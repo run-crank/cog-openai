@@ -69,7 +69,7 @@ describe('CompletionSemanticSimilarity', () => {
         }));
 
         clientWrapperStub.getChatCompletion.returns(Promise.resolve({
-          choices: [{ message: { content: 'Hello, human!' } }], // Mock response with high semantic similarity
+          text_response: 'Hello, human!', // Mock response with high semantic similarity
           usage: { completion_tokens: 263, prompt_tokens: 17, total_tokens: 280 },
           created: '1698287166',
           request_payload: { prompt: 'Hello, GPT!' },
@@ -97,7 +97,7 @@ describe('CompletionSemanticSimilarity', () => {
         }));
 
         clientWrapperStub.getChatCompletion.returns(Promise.resolve({
-          choices: [{ message: { content: 'Welcome, human!' } }], // Mock response with low semantic similarity
+          text_response: 'Welcome, human!', // Mock response with low semantic similarity
           usage: { completion_tokens: 263, prompt_tokens: 17, total_tokens: 280 },
           created: '1698287166',
           request_payload: { prompt: 'Hello, GPT!' },
