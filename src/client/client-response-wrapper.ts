@@ -1,5 +1,4 @@
-
-import { ChatCompletion } from "openai/resources";
+import { ChatCompletion } from 'openai/resources';
 
 export class ClientResponseWrapper {
   private originalClass: ChatCompletion;
@@ -21,10 +20,10 @@ export class ClientResponseWrapper {
     this.request_payload = requestPayload;
     this.text_response = originalObject.choices[0].message.content;
     this.usage = {
-      input: originalObject.usage.prompt_tokens,
-      output: originalObject.usage.completion_tokens,
-      total: originalObject.usage.total_tokens,
-    }
+      input: originalObject.usage?.prompt_tokens ?? 0,
+      output: originalObject.usage?.completion_tokens ?? 0,
+      total: originalObject.usage?.total_tokens ?? 0,
+    };
     this.created = originalObject.created;
   }
 

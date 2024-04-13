@@ -6,88 +6,71 @@ import { Struct } from 'google-protobuf/google/protobuf/struct_pb';
 import { CompletionEqualsAb as Step } from '../../../src/steps/completion/completion-equals-ab';
 
 describe('CompletionEqualsAb', () => {
-  let protoStep: ProtoStep;
-  let stepUnderTest: Step;
-  let clientWrapperStub: any;
+  let protoStep;
+  let stepUnderTest;
+  let clientWrapperStub;
 
   beforeEach(() => {
     protoStep = new ProtoStep();
-    clientWrapperStub = sinon.stub();
-    clientWrapperStub.getChatCompletion = sinon.stub();
+    clientWrapperStub = {
+      getChatCompletion: sinon.stub()
+    };
     stepUnderTest = new Step(clientWrapperStub);
   });
 
   describe('Metadata', () => {
     it('should return expected step metadata', () => {
-      const stepDef: StepDefinition = stepUnderTest.getDefinition();
-      // Here, you would change the expected values to match what CompletionEqualsAb's metadata should return
+      const stepDef = stepUnderTest.getDefinition();
       expect(stepDef.getStepId()).to.equal('CompletionEqualsAb');
       expect(stepDef.getName()).to.equal('Compare OpenAI GPT model A and B prompt responses from completion');
       expect(stepDef.getExpression()).to.equal(`OpenAI model (?<modela>[a-zA-Z0-9_ -.]+) and (?<modelb>[a-zA-Z0-9_ -.]+) responses to "(?<prompt>[a-zA-Z0-9_ -'".,?!]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) ?(?<expectation>.+)?`);
       expect(stepDef.getType()).to.equal(StepDefinition.Type.VALIDATION);
-      // And other necessary metadata tests
     });
-
-    // ... you might also want to validate the fields as in the sample test, updating for your new step's fields
   });
 
   describe('ExecuteStep', () => {
-    describe('GPT models A and B prompt responses meet expectation', () => {
-      beforeEach(() => {
-        // Here, you would setup the step data and mock responses for both model A and model B
-        // Ensure that both responses meet the expected conditions
-        protoStep.setData(Struct.fromJavaScript({
-          modela: 'gpt-model-a',
-          modelb: 'gpt-model-b',
-          prompt: 'Hello, GPT!',
-          expectation: 'expected response',
-          operator: 'be',
-        }));
-        // Mocking successful response for both model A and B
-        clientWrapperStub.getChatCompletion.withArgs('gpt-model-a').returns(Promise.resolve({
-          choices: [{ message: { content: 'expected response' } }],
-          request_payload: { prompt: 'Hello, GPT!' },
-        }));
-        clientWrapperStub.getChatCompletion.withArgs('gpt-model-b').returns(Promise.resolve({
-          choices: [{ message: { content: 'expected response' } }],
-          request_payload: { prompt: 'Hello, GPT!' },
-        }));
-      });
-
-      it('should respond with pass', async () => {
-        const response: RunStepResponse = await stepUnderTest.executeStep(protoStep);
-        expect(response.getOutcome()).to.equal(RunStepResponse.Outcome.PASSED);
-      });
+    beforeEach(() => {
+      protoStep.setData(Struct.fromJavaScript({
+        modela: 'gpt-model-a',
+        modelb: 'gpt-model-b',
+        prompt: 'Hello, GPT!',
+        expectation: 'expected response',
+        operator: 'be',
+      }));
     });
 
-    describe('GPT models A and B prompt responses do not meet expectation', () => {
-      beforeEach(() => {
-        // Setup for the scenario where responses from model A and B do not meet the expectation
-        // You would set different 'unexpected' responses for each model here
-        protoStep.setData(Struct.fromJavaScript({
-          modela: 'gpt-model-a',
-          modelb: 'gpt-model-b',
-          prompt: 'Hello, GPT!',
-          expectation: 'expected response',
-          operator: 'be',
-        }));
-
-        clientWrapperStub.getChatCompletion.withArgs('gpt-model-a').returns(Promise.resolve({
-          choices: [{ message: { content: 'unexpected response from A' } }],
-          request_payload: { prompt: 'Hello, GPT!' },
-        }));
-        clientWrapperStub.getChatCompletion.withArgs('gpt-model-b').returns(Promise.resolve({
-          choices: [{ message: { content: 'unexpected response from B' } }],
-          request_payload: { prompt: 'Hello, GPT!' },
-        }));
+    it('GPT models A and B prompt responses meet expectation', async () => {
+      clientWrapperStub.getChatCompletion.onCall(0).resolves({
+        text_response: 'expected response',
+        request_payload: { prompt: 'Hello, GPT!' }
+      });
+      clientWrapperStub.getChatCompletion.onCall(1).resolves({
+        text_response: 'expected response',
+        request_payload: { prompt: 'Hello, GPT!' }
       });
 
-      it('should respond with fail', async () => {
-        const response: RunStepResponse = await stepUnderTest.executeStep(protoStep);
-        expect(response.getOutcome()).to.equal(RunStepResponse.Outcome.FAILED);
-      });
+      const response = await stepUnderTest.executeStep(protoStep);
+      expect(response.getOutcome()).to.equal(RunStepResponse.Outcome.PASSED);
     });
 
-    // Add more scenarios, such as handling errors during the fetch, incomplete data, etc.
+    it('GPT models A and B prompt responses do not meet expectation', async () => {
+      clientWrapperStub.getChatCompletion.onCall(0).resolves({
+        text_response: 'unexpected response from A',
+        request_payload: { prompt: 'Hello, GPT!' }
+      });
+      clientWrapperStub.getChatCompletion.onCall(1).resolves({
+        text_response: 'unexpected response from B',
+        request_payload: { prompt: 'Hello, GPT!' }
+      });
+
+      const response = await stepUnderTest.executeStep(protoStep);
+      expect(response.getOutcome()).to.equal(RunStepResponse.Outcome.FAILED);
+    });
+
+    it('handles API errors correctly', async () => {
+      clientWrapperStub.getChatCompletion.rejects(new Error('API failure'));
+      const response = await stepUnderTest.executeStep(protoStep);
+      expect(response.getOutcome()).to.equal(RunStepResponse.Outcome.ERROR);
+    });
   });
 });

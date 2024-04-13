@@ -64,7 +64,7 @@ describe('CompletionWordCount', () => {
         }));
 
         clientWrapperStub.getChatCompletion.returns(Promise.resolve({
-          choices: [{ message: { content: 'this is five word response' } }], // Mock response with 5 words
+          text_response: 'this is five word response', // Mock response with 5 words
           usage: { completion_tokens: 263, prompt_tokens: 17, total_tokens: 280 },
           created: '1698287166',
           request_payload: { prompt: 'Hello, GPT!' },
@@ -90,7 +90,7 @@ describe('CompletionWordCount', () => {
         }));
 
         clientWrapperStub.getChatCompletion.returns(Promise.resolve({
-          choices: [{ message: { content: 'three word response' } }], // Mock response
+          text_response: 'three word response', // Mock response
           usage: { completion_tokens: 263, prompt_tokens: 17, total_tokens: 280 },
           created: '1698287166',
           request_payload: { prompt: 'Hello, GPT!' },
