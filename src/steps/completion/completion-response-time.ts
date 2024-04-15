@@ -19,7 +19,7 @@ export class CompletionResponseTime extends BaseStep implements StepInterface {
 
   protected actionList: string[] = ['check'];
 
-  protected targetObject: string = 'Completion';
+  protected targetObject: string = 'Response Time';
 
   protected expectedFields: Field[] = [
     {

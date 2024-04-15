@@ -19,7 +19,7 @@ export class CompletionTokenCost extends BaseStep implements StepInterface {
 
   protected actionList: string[] = ['check'];
 
-  protected targetObject: string = 'Completion';
+  protected targetObject: string = 'Token Cost';
 
   protected expectedFields: Field[] = [
     {

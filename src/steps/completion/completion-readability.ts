@@ -19,7 +19,7 @@ export class CompletionReadability extends BaseStep implements StepInterface {
 
   protected actionList: string[] = ['check'];
 
-  protected targetObject: string = 'completion';
+  protected targetObject: string = 'Readability';
 
   protected expectedFields: Field[] = [{
     field: 'prompt',

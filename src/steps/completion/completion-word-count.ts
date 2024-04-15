@@ -19,7 +19,7 @@ export class CompletionWordCount extends BaseStep implements StepInterface {
 
   protected actionList: string[] = ['check'];
 
-  protected targetObject: string = 'Completion';
+  protected targetObject: string = 'Word Count';
 
   protected expectedFields: Field[] = [{
     field: 'prompt',
