@@ -19,7 +19,7 @@ export class CompletionEquals extends BaseStep implements StepInterface {
 
   protected actionList: string[] = ['check'];
 
-  protected targetObject: string = 'Completion';
+  protected targetObject: string = 'Response';
 
   protected expectedFields: Field[] = [{
     field: 'prompt',

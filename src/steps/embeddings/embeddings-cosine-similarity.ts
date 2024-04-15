@@ -21,7 +21,7 @@ export class EmbeddingsCosineSimilarity extends BaseStep implements StepInterfac
 
   protected actionList: string[] = ['check'];
 
-  protected targetObject: string = 'Completion';
+  protected targetObject: string = 'Cosine Similarity';
 
   protected expectedFields: Field[] = [{
     field: 'text1',

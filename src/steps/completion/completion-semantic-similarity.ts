@@ -21,7 +21,7 @@ export class CompletionSemanticSimilarity extends BaseStep implements StepInterf
 
   protected actionList: string[] = ['check'];
 
-  protected targetObject: string = 'Completion';
+  protected targetObject: string = 'Semantic Similarity';
 
   protected expectedFields: Field[] = [{
     field: 'prompt',
