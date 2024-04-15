@@ -1,5 +1,4 @@
-import { ClientWrapper } from '../client/client-wrapper';
-import { StepDefinition, FieldDefinition, Step as PbStep, RunStepResponse, StepRecord, TableRecord, BinaryRecord, RecordDefinition } from '../proto/cog_pb';
+import { StepDefinition, FieldDefinition, RecordDefinition, Step as PbStep, RunStepResponse, StepRecord, TableRecord, BinaryRecord } from '../proto/cog_pb';
 import { Struct, Value } from 'google-protobuf/google/protobuf/struct_pb';
 import * as util from '@run-crank/utilities';
 
@@ -15,6 +14,7 @@ export interface Field {
   description: string;
   help?: string;
   optionality?: number;
+  bulksupport?: boolean;
 }
 
 export interface ExpectedRecord {
@@ -32,8 +32,10 @@ export abstract class BaseStep {
   protected expectedFields: Field[];
   protected expectedRecords?: ExpectedRecord[];
   protected stepHelp?: string;
+  protected actionList?: string[];
+  protected targetObject?: string;
 
-  constructor(protected client: ClientWrapper) { }
+  constructor(protected client) { }
 
   getId(): string {
     return this.constructor.name;
@@ -50,20 +52,30 @@ export abstract class BaseStep {
       stepDefinition.setHelp(this.stepHelp);
     }
 
+    if (this.actionList) {
+      stepDefinition.setActionList(this.actionList);
+    }
+
+    if (this.targetObject) {
+      stepDefinition.setTargetObject(this.targetObject);
+    }
+
     this.expectedFields.forEach((field: Field) => {
       const expectedField = new FieldDefinition();
       expectedField.setType(field.type);
       expectedField.setKey(field.field);
       expectedField.setDescription(field.description);
 
-      if (field.hasOwnProperty('help')) {
-        expectedField.setHelp(field.help);
-      }
-
       if (field.hasOwnProperty('optionality')) {
         expectedField.setOptionality(field.optionality);
       } else {
         expectedField.setOptionality(FieldDefinition.Optionality.REQUIRED);
+      }
+
+      if (field.hasOwnProperty('bulksupport')) {
+        expectedField.setBulksupport(field.bulksupport);
+      } else {
+        expectedField.setBulksupport(false);
       }
 
       stepDefinition.addExpectedFields(expectedField);
@@ -87,8 +99,8 @@ export abstract class BaseStep {
     return stepDefinition;
   }
 
-  assert(operator: string, actualValue: string, value: string, field: string): util.AssertionResult {
-    return util.assert(operator, actualValue, value, field);
+  assert(operator: string, actualValue: string, value: string, field: string, piiLevel: string = null): util.AssertionResult {
+    return util.assert(operator, actualValue, value, field, piiLevel);
   }
 
   protected pass(message: string, messageArgs: any[] = [], records: StepRecord[] = []): RunStepResponse {
@@ -159,5 +171,4 @@ export abstract class BaseStep {
     record.setName(name);
     return record;
   }
-
 }
