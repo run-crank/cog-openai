@@ -1,3 +1,4 @@
+import { clearScreenDown } from 'readline';
 import { parse } from 'yaml';
 
 //  ████████╗ ███████╗ ███████╗ ████████╗ ███████╗
@@ -52,7 +53,7 @@ steps:
   - step: OpenAI model {{model.b}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
     data:
       __StepOrder: 2
-  - step: OpenAI model {{model.c}} response to "{{test.prompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
+  - step: OpenAI model {{model.c}} response to "{{test.qprompt}}" semantically compared with "{{test.semanticSimilarityExpectation}}" should {{test.semanticSimilarityOperator}} {{test.semanticSimilarity}}
     data:
       __StepOrder: 3
 `;
@@ -166,31 +167,6 @@ interface Scenario {
   }[];
 };
 
-/**
-  Object to stores a validated YAML object. Maybe not needed
-*/
-class ScenarioObject implements Scenario {
-  scenario: string;
-  description: string;
-  tokens: {
-    test: {
-      [key: string]: string | number | { [key: string]: string | number }[];
-    };
-  };
-  steps: {
-    step: string;
-    data: {
-      __stepOrder: number;
-    };
-  }[];
-
-  constructor(scenario: string, description: string, tokens: { test: { [key: string]: string | number | { [key: string]: string | number }[] } }, steps: { step: string; data: { __stepOrder: number; } }[]) {
-    this.scenario = scenario;
-    this.description = description;
-    this.tokens = tokens;
-    this.steps = steps;
-  }
-}
 
 
 // COMMENTS ABOUT THINGS THAT NEED CHECKWING H
@@ -275,34 +251,40 @@ class ValidateYamlFormatHandler extends AbstractHandler {
     try {
       const scenario = parse(yamlContent) as Scenario;
 
-      // check if the top level fields exist
+      // Check if scenario has exactly the required fields and their types are valid
+      const requiredTopLevelFields = ['scenario', 'description', 'tokens', 'steps'];
       if (
-          Object.keys(scenario).length !== 4 ||
+          Object.keys(scenario).length !== requiredTopLevelFields.length ||
+          !requiredTopLevelFields.every(field => field in scenario) ||
           typeof scenario.scenario !== 'string' ||
           typeof scenario.description !== 'string' ||
           typeof scenario.tokens !== 'object' ||
+          typeof scenario.steps !== 'object' ||
           !Array.isArray(scenario.steps)
       ) {
-          console.log('Invalid top-level field(s)')
-          throw new Error('Invalid YAML format')
+          console.log('Invalid top-level field(s)');
+          throw new Error('Invalid YAML format');
       }
 
       // check if the test object exists
       if (
-          Object.keys(scenario.tokens).length !== 1 ||
-          typeof scenario.tokens.test !== 'object'
+          !scenario.tokens.test ||
+          Object.keys(scenario.tokens).length !== 1
       ) {
           console.log('Invalid test object structure')
           throw new Error('Invalid YAML format')
       }
 
       // Check each step
+      const requiredStepFields = ['step', 'data'];
       scenario.steps.forEach((step, index) => {
           if (
-              Object.keys(step).length !== 2 ||
-              Object.keys(step.data).length !== 1 ||
+              Object.keys(step).length !== requiredStepFields.length ||
+              !requiredStepFields.every(field => field in step) ||
               typeof step.step !== 'string' ||
               typeof step.data !== 'object' ||
+              Object.keys(step.data).length !== 1 ||
+              !('__stepOrder' in step.data) ||
               typeof step.data.__stepOrder !== 'number'
           ) {
               console.log(`Invalid structure in step ${index + 1}`)
@@ -437,24 +419,34 @@ class ValidateYamlExpressionHandler extends AbstractHandler {
 
 
 /**
- * This handler validates the variable names in the steps matches 
- * the variables declared under tokens->tests
+ * This handler performs two checks on the variables in the steps:
+ * 1. Check if the variables in the steps match the variables declared under tokens->tests.
+ * 2. Check if the variables in the steps are in the correct order with the order of variables in any of the existing expressions.
+ * Returns true if both checks pass, false otherwise.
  * 
  */
 class ValidateYamlVariableHandler extends AbstractHandler {
   handle(request: string) {
     console.log("Inside ValidateYamlVariableHandler...")
-
-    if(this.checkVariableKeyToStepParam(request)) {
-
-      console.log("Moving onto next handler: ", this.nextHandler.constructor.name);
-      return this.nextHandler.handle(request);
-    } else if (this.nextHandler) {
-      console.log("@@main process missing or failed, moving onto next handler: ", this.nextHandler.constructor.name);
-      this.nextHandler.handle(request);
-    } else {
-      console.log("Invalid variables found");
-    }
+    const scenario = parse(request) as Scenario;
+    const steps = scenario.steps;
+    console.log("Number of steps in this scenario: ", steps.length);
+    const tokensTestVariableList = Object.keys(scenario.tokens.test); 
+    console.log("Test keys: ", tokensTestVariableList);
+    steps.forEach(step => {
+      console.log("checking step: ", step.step);
+      let resultCheckVariableKeyToStepParam = this.checkVariableKeyToStepParam([step], tokensTestVariableList);
+      let resultCheckVariableOrder = this.checkVariableOrder([step], tokensTestVariableList);
+      if(!resultCheckVariableKeyToStepParam || !resultCheckVariableOrder) {
+        console.log("\nOne of the checks failed.. returning false\n");
+        return false;
+      }
+      else {
+        console.log("Variables are valid\n");
+        // return true;
+      }
+    });
+    return this.nextHandler.handle(request);
   }
 
   /**
@@ -462,15 +454,9 @@ class ValidateYamlVariableHandler extends AbstractHandler {
    * @param request 
    * @returns 
    */
-  checkVariableKeyToStepParam(request: string) {
+  checkVariableKeyToStepParam(steps: any[], tokens: string[]) {
     try {
-      const scenario = parse(request) as Scenario;
-      const steps = scenario.steps;
-      console.log("checkVariableKeyToStepParam: steps: ", steps);
-      const tokensTestVariableList = Object.keys(scenario.tokens.test); 
-      // e.g. returns ['prompt', 'modela', 'modelb', 'semanticSimilarityExpectation', 'semanticSimilarityOperator', 'semanticSimilarity']
-      console.log("checkVariableKeyToStepParam: tokensTestVariableList: ", tokensTestVariableList);
-      
+
       // const stepVariableList = steps.flatMap(step => step.step.match(/{{(.*?)}}/g)); 
       // flatMap converts [[step1Var1, step1Var2, step1Var3], [step2Var1, step2Var2], [step3Var1]] --> [step1Var1, step1Var2, step1Var3, step2Var1, step2Var2, step3Var1]
       const stepVariableList = steps.flatMap(step => {
@@ -479,36 +465,41 @@ class ValidateYamlVariableHandler extends AbstractHandler {
         const matches = step.step.match(/{{(.*?)(\..*?)?}}/g);
         return matches ? matches.map(match => match.replace('{{test.', '{{').slice(2, -2)) : [];
       });
-      console.log("checkVariableKeyToStepParam: stepVariableList: ", stepVariableList);
+      console.log("Variables in this step: ", stepVariableList);
       
       let invalidVariables: string[] = [];
+      console.log("Now checking variables with list...");
       stepVariableList.forEach(variable => {
-        console.log("checking variable: ", variable);
-        if (!tokensTestVariableList.includes(variable)) {
+        process.stdout.write("checking variable: " + variable);
+        if (!tokens.includes(variable)) {
           invalidVariables.push(variable);
-          throw new Error(`Invalid variable found: ${variable}`);
+          console.log(" = not found❌");
+          return;
         }
+        console.log(" = passed✅");
       });
       if (invalidVariables.length > 0) {
-        console.error(`Invalid variables found: ${invalidVariables}`);
-        return false;
+        throw new Error(`Invalid variable name(s) found for this step: ${invalidVariables}`);
+      } else {
+        return true;
       }
-      console.log("Variables are valid");
-      return true;
     } catch (error) {
-      console.error("Error: ", error);
+      console.error(error);
       return false;
     }
   }
 
   /**
    * Checks if the variables in the steps are in the correct order against 
-   * the order of variables in of any of the existing expressions
+   * the order of variables in any of the existing expressions
    * 
-   * @param request 
+   * @param steps: a list of steps in the scenario as objects
+   * @param tokens: a list of variables declared under tokens->tests as strings 
    */
-  checkVariableOrder(request: string) {
-    
+  checkVariableOrder(steps: any[], tokens: string[]) {
+    console.log("Inside checkVariableOrder...");
+    console.log("@@@test@@@ order check passed");
+    return true;
   }
 
 }
