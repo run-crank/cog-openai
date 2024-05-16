@@ -401,7 +401,6 @@ class ValidateWordCountExpectation extends AbstractHandler {
 }
 
 
-
 /**
  * This handler validates the syntax of the step expression
  * e.g. a step should match the following expression exactly (ignoring the {{ parameters }}): 
@@ -432,21 +431,27 @@ class ValidateYamlVariableHandler extends AbstractHandler {
     const steps = scenario.steps;
     console.log("Number of steps in this scenario: ", steps.length);
     const tokensTestVariableList = Object.keys(scenario.tokens.test); 
-    console.log("Test keys: ", tokensTestVariableList);
+    console.log("Tokens test keys: ", tokensTestVariableList);
+    let result = true;
     steps.forEach(step => {
       console.log("checking step: ", step.step);
       let resultCheckVariableKeyToStepParam = this.checkVariableKeyToStepParam([step], tokensTestVariableList);
       let resultCheckVariableOrder = this.checkVariableOrder([step], tokensTestVariableList);
       if(!resultCheckVariableKeyToStepParam || !resultCheckVariableOrder) {
-        console.log("\nOne of the checks failed.. returning false\n");
-        return false;
+        result = false;
       }
       else {
         console.log("Variables are valid\n");
         // return true;
       }
     });
-    return this.nextHandler.handle(request);
+    if (result) {
+      console.log("All variables are valid");
+      return this.nextHandler.handle(request);
+    } else {
+      console.log("\nOne of the checks failed.. returning false\n");
+      return false;
+    }
   }
 
   /**
@@ -468,7 +473,7 @@ class ValidateYamlVariableHandler extends AbstractHandler {
       console.log("Variables in this step: ", stepVariableList);
       
       let invalidVariables: string[] = [];
-      console.log("Now checking variables with list...");
+      console.log("\nNow checking variables with token test keys...");
       stepVariableList.forEach(variable => {
         process.stdout.write("checking variable: " + variable);
         if (!tokens.includes(variable)) {
@@ -497,7 +502,7 @@ class ValidateYamlVariableHandler extends AbstractHandler {
    * @param tokens: a list of variables declared under tokens->tests as strings 
    */
   checkVariableOrder(steps: any[], tokens: string[]) {
-    console.log("Inside checkVariableOrder...");
+    console.log("\nNow checking order of variables...");
     console.log("@@@test@@@ order check passed");
     return true;
   }
