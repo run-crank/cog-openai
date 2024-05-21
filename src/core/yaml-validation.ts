@@ -199,8 +199,6 @@ class ValidateStepOrderHandler extends AbstractHandler {
 
   validateStepOrder(scenario: Scenario): boolean {
     const steps = scenario.steps;
-    // const stepOrders = steps.map(step => step.data.__stepOrder);
-
     const stepOrders = steps.map(step => {
       const pattern = /__steporder/i;
       const key = Object.keys(step.data).find(key => pattern.test(key));
@@ -248,12 +246,10 @@ class ValidateYamlVariableHandler extends AbstractHandler {
     let count = 0;
     for (const pattern of validationExpression) {
         count++;
-        // console.log("Pattern", count);
         const regex = new RegExp(pattern);
         const match = input.match(regex);
         
         if (match) {
-            // console.log("Matched groups:", match.groups);
             return true;
         }
     }
@@ -264,7 +260,6 @@ class ValidateYamlVariableHandler extends AbstractHandler {
   checkVariableKeyToStepParam(scenario: Scenario) {
     const steps = scenario.steps; // array of steps
     const keyValuePairs = this.extractKeyValuePairs(scenario.tokens.test); // Map of key-value pairs
-    // console.log("checkVariableKeyToStepParam: keyValuePairs: ", keyValuePairs);
     let stepOrder = 0;
     steps.forEach((step) => {
         stepOrder++;
@@ -402,12 +397,12 @@ export function processStringYaml(yaml: string): ResultOutput {
 
 
 // Test the program from this file
-//
-// try {
-//   processYamlFiles()  // checks all the yaml files in the test folder
-// } catch (error) {
-//   console.log(error)
-// }
+
+try {
+  processYamlFiles()  // checks all the yaml files in the test folder
+} catch (error) {
+  console.log(error)
+}
 
 
 

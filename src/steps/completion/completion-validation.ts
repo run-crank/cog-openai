@@ -4,7 +4,7 @@ import * as util from '@run-crank/utilities';
 import * as similarity from 'similarity';
 import * as stringSimilarity from 'string-similarity';
 import * as fs from 'fs';
-import { processStringYaml } from '../../core/yam-validation';
+import { processStringYaml } from '../../core/yaml-validation';
 
 import {
   BaseStep, Field, StepInterface, ExpectedRecord,
@@ -81,11 +81,42 @@ export class CompletionValidation extends BaseStep implements StepInterface {
             if (!fileContent) {
                 return this.error('File is empty. Please provide a valid file');
             }
-      
             // Print the file content to the console
             console.log('File content:', fileContent);
             
-            result = processStringYaml(fileContent);
+            const parsedYamlAsString = JSON.stringify(fileContent);
+            console.log('Parsed yaml as string:', parsedYamlAsString);
+            
+            result = processStringYaml(fileContent);  // call the function to process the yaml file (i.e. from the core/yam-validation.ts file)
+
+            // store data for csv file
+            // prompt, ai model, result (true or false), yaml scenario
+            const data = {
+                inputFile: inputFile,
+                result: result.valid,
+                prompt: prompt,
+                model: model,
+            }
+            // write to csv file
+            const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+            const csvWriter = createCsvWriter({
+                path: 'completion-validation.csv',
+                header: [
+                    {id: 'inputFile', title: 'Input File'},
+                    {id: 'result', title: 'Result'},
+                    {id: 'prompt', title: 'Prompt'},
+                    {id: 'model', title: 'Model'},
+                ]
+            });
+
+            const records = [data];
+            csvWriter.writeRecords(records)
+                .then(() => {
+                    console.log('...Done writing to csv file');
+                });
+            
+
+
             return result.valid ? this.pass(result.message, []) : this.fail(result.message, []);
             
             //@@@@@@ below is uncheachable for now, they are for context validation using openai api @@@@@@@@@@@@@@@@@@@
