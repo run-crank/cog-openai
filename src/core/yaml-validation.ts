@@ -20,7 +20,7 @@ const validationExpression = [
 
   '^OpenAI model (?<modela>(?:[a-zA-Z0-9_-]*gpt-[a-zA-Z0-9_-]*)[^ ]*) school level of the response to "(?<prompt>[a-zA-Z0-9_ -\p{P}]+)" should (?<operator>be less than|be greater than|be one of|be|not be one of|not be) ?(?<schoollevel>.+)?', //idk
 
-  '^OpenAI model (?<modela>(?:[a-zA-Z0-9_-]*gpt-[a-zA-Z0-9_-]*)[^ ]*) response to "(?<prompt>[a-zA-Z0-9_ -\p{P}]+)" semantically compared with "(?<comparetext>[a-zA-Z0-9_ -\p{P}]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) ?(?<semanticsimilarity>0(\.\d+)?)', //ok
+  '^OpenAI model (?<modela>(?:[a-zA-Z0-9_-]*gpt-[a-zA-Z0-9_-]*)[^ ]*) response to "(?<prompt>[a-zA-Z0-9_ -\p{P}]+)" semantically compared with "(?<comparetext>[a-zA-Z0-9_ -\p{P}]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) ?(?<semanticsimilarity>0(\\.\\d+)?)', //ok
 
   '^OpenAI model (?<modela>(?:[a-zA-Z0-9_-]*gpt-[a-zA-Z0-9_-]*)[^ ]*) word count in a response to "(?<prompt>[a-zA-Z0-9_ -\p{P}]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) (?<expectation>0|[1-9]\\d*)', //ok
 
@@ -68,7 +68,7 @@ interface Handler {
   handle(scenario: Scenario): ResultOutput;
 }
 
-interface ResultOutput {
+export interface ResultOutput {
   valid: boolean,
   message: string
 }
@@ -353,30 +353,30 @@ function executeHandlers(yaml: string) {
  * 
  * @param pathString the relative path to the folder containing the YAML files
  */
-function processYamlFiles(pathString: string = '../../test/scenarios/ambiguity-tests'): void {
-  const folderPath = path.join(__dirname, pathString);
-  console.log("folderPath", folderPath);
+// function processYamlFiles(pathString: string = '../../test/scenarios/ambiguity-tests'): void {
+//   const folderPath = path.join(__dirname, pathString);
+//   console.log("folderPath", folderPath);
 
-  const files = fs.readdirSync(folderPath);
+//   const files = fs.readdirSync(folderPath);
 
-  const yamlFiles = files.filter(file => file.endsWith('.yml'));
-  console.log("yaml files (.yml) found:", yamlFiles);
+//   const yamlFiles = files.filter(file => file.endsWith('.yml'));
+//   console.log("yaml files (.yml) found:", yamlFiles);
 
-  yamlFiles.forEach((file, index) => {
-    const filePath = path.join(folderPath, file);
-    const fileContent = fs.readFileSync(filePath, 'utf-8');
-    console.log("typeof file: ", typeof file)
-    console.log("typeof fileContent: ", typeof fileContent)
-    try {
-      var result = executeHandlers(fileContent)
-      console.log(`file ${index + 1}: ${file}`)
-      console.log(result)
-      console.log()
-    } catch (error) {
-      console.log(error)
-    }
-  });
-}
+//   yamlFiles.forEach((file, index) => {
+//     const filePath = path.join(folderPath, file);
+//     const fileContent = fs.readFileSync(filePath, 'utf-8');
+//     console.log("typeof file: ", typeof file)
+//     console.log("typeof fileContent: ", typeof fileContent)
+//     try {
+//       var result = executeHandlers(fileContent)
+//       console.log(`file ${index + 1}: ${file}`)
+//       console.log(result)
+//       console.log()
+//     } catch (error) {
+//       console.log(error)
+//     }
+//   });
+// }
 
 
 /**
@@ -396,13 +396,13 @@ export function processStringYaml(yaml: string): ResultOutput {
 }
 
 
-// Test the program from this file
+// // Test the program from this file
 
-try {
-  processYamlFiles()  // checks all the yaml files in the test folder
-} catch (error) {
-  console.log(error)
-}
+// try {
+//   processYamlFiles()  // checks all the yaml files in the test folder
+// } catch (error) {
+//   console.log(error)
+// }
 
 
 

@@ -5,6 +5,7 @@ import * as similarity from 'similarity';
 import * as stringSimilarity from 'string-similarity';
 import * as fs from 'fs';
 import { processStringYaml } from '../../core/yaml-validation';
+import { ResultOutput} from '../../core/yaml-validation'
 
 import {
   BaseStep, Field, StepInterface, ExpectedRecord,
@@ -27,6 +28,14 @@ export class CompletionValidation extends BaseStep implements StepInterface {
   protected targetObject: string = 'Semantic Similarity';
 
   protected expectedFields: Field[] = [{
+    field: 'prompt',
+    type: FieldDefinition.Type.STRING,
+    description: 'User Prompt to send to GPT',
+  }, {
+    field: 'model',
+    type: FieldDefinition.Type.STRING,
+    description: 'GPT Model to use for completion',
+  },{
     field: 'inputFile',
     type: FieldDefinition.Type.STRING,
     description: 'Path to the input file',
@@ -62,99 +71,63 @@ export class CompletionValidation extends BaseStep implements StepInterface {
 
   async executeStep(step: Step) {
     const stepData: any = step.getData() ? step.getData().toJavaScript() : {};
-    const model = 'gpt-4-0613'
+    const { prompt } = stepData;
+    const { model } = stepData;
     const inputFile = stepData.inputFile;
-    const operator = 'be greater than';
-    const expectation = '0.75';
-    let prompt = 'Given this yaml file:'; // TODO
 
-    let result = { valid: false, message: '' }; 
-  
+    let result = { valid: false, message: '' };
+
     try {
-        if (inputFile) {
-            // if the inputFile is not in .crank.yml format, return an error
-            if (!inputFile.endsWith('.crank.yml')) {
-                return this.error('File format is not correct. Please provide a .crank.yml file');
-            }            
-            
-            const fileContent = fs.readFileSync(inputFile, 'utf8');
-            if (!fileContent) {
-                return this.error('File is empty. Please provide a valid file');
-            }
-            // Print the file content to the console
-            console.log('File content:', fileContent);
-            
-            const parsedYamlAsString = JSON.stringify(fileContent);
-            console.log('Parsed yaml as string:', parsedYamlAsString);
-            
-            result = processStringYaml(fileContent);  // call the function to process the yaml file (i.e. from the core/yam-validation.ts file)
+      if (inputFile) {
+        // if the inputFile is not in .crank.yml format, return an error
+        if (!inputFile.endsWith('.crank.yml')) {
+          return this.error('File format is not correct. Please provide a .crank.yml file');
+        }
 
-            // store data for csv file
-            // prompt, ai model, result (true or false), yaml scenario
-            const data = {
-                inputFile: inputFile,
-                result: result.valid,
-                prompt: prompt,
-                model: model,
-            }
-            // write to csv file
-            const createCsvWriter = require('csv-writer').createObjectCsvWriter;
-            const csvWriter = createCsvWriter({
-                path: 'completion-validation.csv',
-                header: [
-                    {id: 'inputFile', title: 'Input File'},
-                    {id: 'result', title: 'Result'},
-                    {id: 'prompt', title: 'Prompt'},
-                    {id: 'model', title: 'Model'},
-                ]
-            });
-
-            const records = [data];
-            csvWriter.writeRecords(records)
-                .then(() => {
-                    console.log('...Done writing to csv file');
-                });
-            
+        const fileContent = fs.readFileSync(inputFile, 'utf8');
+        if (!fileContent) {
+          return this.error('File is empty. Please provide a valid file');
+        }
 
 
-            return result.valid ? this.pass(result.message, []) : this.fail(result.message, []);
-            
-            //@@@@@@ below is uncheachable for now, they are for context validation using openai api @@@@@@@@@@@@@@@@@@@
-            prompt += `\n${fileContent}\n\nGrade how much sense the tokens and steps made under the scenario and description, only grade it using float number out of 1 without natural language`; // TODO
-
-          }
+        // let result = processStringYaml(fileContent);  // call the function to process the yaml file (i.e. from the core/yam-validation.ts file)
         
-        // @@@@@@@@@@@@@@@@later is the code for the context validation@@@@@@@@@@@@@@@@@@@
-
-        // const messages = [];
-        // const message = {};
-        // message['role'] = 'user';
-        // message['content'] = prompt;
-        // messages.push(message);
-        // const completion = await this.client.getChatCompletion(model, messages);
-        // const response = completion.text_response;
-        // result = this.assert(operator, response, expectation, 'response');
+        // writeDataToCSV(fileContent, result)
         
-        // const returnObj = {
-        //     model,
-        //     prompt,
-        //     response,
-        //     usage: completion.usage,
-        //     created: completion.created,
-        //     request: completion.request_payload,
-        // };
-        // const records = this.createRecords(returnObj, stepData.__stepOrder);
-        // return result.valid ? this.pass(result.message, [], records) : this.fail(result.message, [], records); 
+        // return result.valid ? this.pass(result.message, []) : this.fail(result.message, []);
+      }
 
-        } catch (e) {
-        if (e instanceof util.UnknownOperatorError) {
-            return this.error('%s Please provide one of: %s', [e.message, baseOperators.join(', ')]);
-        }
-        if (e instanceof util.InvalidOperandError) {
-            return this.error('There was an error checking GPT chat completion object: %s', [e.message]);
-        }
-        return this.error('Error: %s', [e.toString()]);
-        }
+      const messages = [];
+      const message = {};
+      message['role'] = 'user';
+      message['content'] = prompt;
+      messages.push(message);
+      const completion = await this.client.getChatCompletion(model, messages);
+      const response = completion.text_response;
+
+      const returnObj = {
+          model,
+          prompt,
+          response,
+          usage: completion.usage,
+          created: completion.created,
+          request: completion.request_payload,
+      };
+      const records = this.createRecords(returnObj, stepData.__stepOrder);
+      result = processStringYaml(response)
+      // writeDataToCSV(response, result)  // if you dont want to write to csv atm, you can comment it out
+      
+      return result.valid ? this.pass(result.message, [], records) : this.fail(result.message, [], records); 
+      
+    } catch (e) {
+      if (e instanceof util.UnknownOperatorError) {
+        return this.error('%s Please provide one of: %s', [e.message, baseOperators.join(', ')]);
+      }
+      if (e instanceof util.InvalidOperandError) {
+        return this.error('There was an error checking GPT chat completion object: %s', [e.message]);
+      }
+      return this.error('Error: %s', [e.toString()]);
+    }
   }
 
   public createRecords(completion, stepOrder = 1): StepRecord[] {
@@ -165,6 +138,48 @@ export class CompletionValidation extends BaseStep implements StepInterface {
     records.push(this.keyValue(`completion.${stepOrder}`, `Check content reader from Step ${stepOrder}`, completion));
     return records;
   }
+}
+
+  /** 
+   * @todo where to store this function? in mixins?
+   * 
+   *  Write results into CSV
+   *  Results should be stored in ./src/log/completion-validation_result.csv
+   */
+async function writeDataToCSV(fileContent: string, result: ResultOutput) {
+  const scenarioParsedForCSV = JSON.stringify(fileContent);
+  const data = {
+    result: result.valid,
+    resultMessage: result.message,
+    prompt: "@@placeholder_prompt@@",
+    model: "@@placeholder_model@@",
+    scenarioContent: scenarioParsedForCSV
+  }
+
+  const pathToCSVFile = './src/log/completion-validation_result.csv'
+  const appendData = fs.existsSync(pathToCSVFile) ? true : false;
+
+  const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+  const csvWriter = createCsvWriter({
+    path: pathToCSVFile,
+    header: [
+      { id: 'result', title: 'RESULT' },
+      { id: 'resultMessage', title: 'RESULT_MESSAGE'},
+      { id: 'prompt', title: 'PROMPT' },
+      { id: 'model', title: 'MODEL' },
+      { id: 'scenarioContent', title: 'SCENARIO_CONTENT' }
+    ],
+    append: appendData
+  });
+
+  const records = [data];
+  await csvWriter.writeRecords(records)
+    .then(() => {
+      console.log('...Done writing to csv file');
+    })
+    .catch((error: any) => {
+      console.error('Error writing to csv file: ', error);
+    })
 }
 
 export { CompletionValidation as Step };
