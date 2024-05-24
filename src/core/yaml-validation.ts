@@ -13,7 +13,7 @@ import * as path from 'path';
 //
 
 // There should be eight(8) valid expressions as defined in the README, this is specific usage for the validator
-const validationExpression = [
+const validationExpressions = [
   '^OpenAI model (?<modela>(?:[a-zA-Z0-9_-]*gpt-[a-zA-Z0-9_-]*)[^ ]*) and (?<modelb>(?:[a-zA-Z0-9_-]*gpt-[a-zA-Z0-9_-]*)[^ ]*) responses to "(?<prompt>[a-zA-Z0-9_ -\p{P}]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) ?(?<expectation>.+)?',  //ok
 
   '^OpenAI model (?<modela>(?:[a-zA-Z0-9_-]*gpt-[a-zA-Z0-9_-]*)[^ ]*) response to "(?<prompt>(?:(?!semantically compared)[a-zA-Z0-9_ -\p{P}])*)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) (?<expectation>.+)?', // general threshold
@@ -26,9 +26,9 @@ const validationExpression = [
 
   '^OpenAI model (?<modela>(?:[a-zA-Z0-9_-]*gpt-[a-zA-Z0-9_-]*)[^ ]*) cosine similarity of "(?<text1>[a-zA-Z0-9_ -]+)" and "(?<text2>[a-zA-Z0-9_ -]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) ?(?<cosinesimilarity>.+)?', //idk
 
-  '^OpenAI model (?<modela>(?:[a-zA-Z0-9_-]*gpt-[a-zA-Z0-9_-]*)[^ ]*) ?(?<type>.+)? token cost in response to "(?<prompt>[a-zA-Z0-9_ -]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) (?<expectation>0|[1-9]\\d*) tokens$', //ok
+  '^OpenAI model (?<modela>(?:[a-zA-Z0-9_-]*gpt-[a-zA-Z0-9_-]*)[^ ]*) ?(?<type>.+)? token cost in response to "(?<prompt>[a-zA-Z0-9_ -\p{P}]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) (?<expectation>0|[1-9]\\d*) tokens$', //ok
 
-  '^OpenAI model (?<modela>(?:[a-zA-Z0-9_-]*gpt-[a-zA-Z0-9_-]*)[^ ]*) response time in response to "(?<prompt>[a-zA-Z0-9_ -]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) (?<expectation>0|[1-9]\\d*) ms$',  //ok
+  '^OpenAI model (?<modela>(?:[a-zA-Z0-9_-]*gpt-[a-zA-Z0-9_-]*)[^ ]*) response time in response to "(?<prompt>[a-zA-Z0-9_ -\p{P}]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) (?<expectation>0|[1-9]\\d*) ms$',  //ok
 ];
 
 
@@ -244,7 +244,7 @@ class ValidateYamlVariableHandler extends AbstractHandler {
 
   validateStringExp(input: string): boolean {
     let count = 0;
-    for (const pattern of validationExpression) {
+    for (const pattern of validationExpressions) {
         count++;
         const regex = new RegExp(pattern);
         const match = input.match(regex);
@@ -271,9 +271,9 @@ class ValidateYamlVariableHandler extends AbstractHandler {
         console.log(`Step ${stepOrder}: ${replacedStepExp}`); // log the mapped step string
         // validate the step expression with the mapped step string
         const isValidExpression = this.validateStringExp(replacedStepExp);
-        console.log("isValidExpression: ", isValidExpression);
+        console.log("isValidExpression: ", isValidExpression, "\n");
         if (!isValidExpression) {
-            throw new Error(`Invalid expression found at step ${stepOrder}`);
+            throw new Error(`Invalid expression found at step ${stepOrder}\n`);
         }
     });
     return true;
@@ -379,6 +379,18 @@ function executeHandlers(yaml: string) {
 // }
 
 
+/** 
+ * 
+ * Test the program from this file
+ * 
+ */  
+// try {
+//   processYamlFiles()  // checks all the yaml files in the test folder
+// } catch (error) {
+//   console.log(error)
+// }
+
+
 /**
  * Takes the YAML string and proccesses it through the event handlers
  * 
@@ -388,21 +400,13 @@ function executeHandlers(yaml: string) {
 export function processStringYaml(yaml: string): ResultOutput {
   try {
     var result = executeHandlers(yaml)
-    console.log(result)
+    console.log("Result: ", result);
     return result
   } catch (error) {
     console.log(error)
   }
 }
 
-
-// // Test the program from this file
-
-// try {
-//   processYamlFiles()  // checks all the yaml files in the test folder
-// } catch (error) {
-//   console.log(error)
-// }
 
 
 
