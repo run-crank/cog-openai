@@ -2,11 +2,9 @@
 /* tslint:disable:no-else-after-return */
 
 import * as util from '@run-crank/utilities';
-import * as similarity from 'similarity';
-import * as stringSimilarity from 'string-similarity';
 import * as fs from 'fs';
-import { processStringYaml } from '../../core/yaml-validation';
-import { ResultOutput} from '../../core/yaml-validation'
+import { processStringYaml } from '../../client/mixins/yaml-validation';
+import { ResultOutput} from '../../client/mixins/yaml-validation'
 
 import {
   BaseStep, Field, StepInterface, ExpectedRecord,
@@ -80,17 +78,10 @@ export class CompletionValidation extends BaseStep implements StepInterface {
       };
       messages.push(assistantContextMessage)
       messages.push(message)
-      console.log("\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-      console.log(messages[1]);
-      console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-      const completion = await this.client.getChatCompletion(model, messages);  // @TODO@
-      console.log("");
-      console.log("");
-      console.log("completion: ", completion);
+  
+      const completion = await this.client.getChatCompletion(model, messages); 
+      console.log(completion);
       const response = completion.text_response;
-      console.log("");
-      console.log("");
-
       const returnObj = {
           model,
           prompt,
@@ -101,7 +92,7 @@ export class CompletionValidation extends BaseStep implements StepInterface {
       };
       const records = this.createRecords(returnObj, stepData.__stepOrder);
       result = processStringYaml(response)
-      writeDataToCSV(response, result)  // if you dont want to write to csv atm, you can comment it out
+      writeDataToCSV(response, result, prompt, model)
       
       return result.valid ? this.pass(result.message, [], records) : this.fail(result.message, [], records); 
       
@@ -127,18 +118,16 @@ export class CompletionValidation extends BaseStep implements StepInterface {
 }
 
   /** 
-   * @todo where to store this function? in mixins?
-   * 
    *  Write results into CSV
    *  Results should be stored in ./src/log/completion-validation_result.csv
    */
-async function writeDataToCSV(fileContent: string, result: ResultOutput) {
+async function writeDataToCSV(fileContent: string, result: ResultOutput, prompt: string, model: string) {
   const scenarioParsedForCSV = JSON.stringify(fileContent);
   const data = {
     result: result.valid,
     resultMessage: result.message,
-    prompt: "@@placeholder_prompt@@",
-    model: "@@placeholder_model@@",
+    prompt: prompt,
+    model: model,
     scenarioContent: scenarioParsedForCSV
   }
 
@@ -168,10 +157,6 @@ async function writeDataToCSV(fileContent: string, result: ResultOutput) {
     })
 }
 
-const systemContextMessage = {
-  role: "system",
-  content: "You are a YAML scenario generator. You must only output COMPLETELY VALID YAML"
-}
 
 const assistantContextMessage =  {
   role: "assistant",
@@ -199,11 +184,13 @@ tokens:
     schoollevel: 5th grade | 6th grade | 7th grade | 8th & 9th grade | 10th to 12th grade | College | College Graduate | Professional
     
     semanticSimilarity: The expected semantic similarity score (float between 0 and 1).
-    cosineSimilarityExpectation: The expectation of cosine similarity.
-    wordCountExpectation: The expected word count.
+    cosineSimilarityExpectation: The expectation of cosine similarity (float between 0 and 1).
+    wordCountExpectation: The expected word count (integer greater than 0).
     
     modela: The AI model used (e.g., "gpt-4o").
-    modelb: The AI model used (e.g., "gpt-4o").
+    modelb: The AI model used (e.g., "gpt-4-0613").
+    text1: Text for testing cosine similarity
+    text2: Text for testing cosine similarity
 
 steps:
   - step: OpenAI model {{test.modela}} and {{test.modelb}} responses to "{{test.prompt}}" should {{test.abOperator}} {{test.textExpectation}}
@@ -221,7 +208,7 @@ steps:
   - step: OpenAI model {{test.modela}} word count in a response to "{{test.prompt}}" should {{test.equalsOperator}} {{test.wordCountExpectation}}
     data:
       __stepOrder: 5
-  - step: OpenAI model {{test.modela}} cosine similarity of "{{test.prompt}}" and "{{test.prompt}}" should {{test.operator}} {{test.cosineSimilarityExpectation}}?
+  - step: OpenAI model {{test.modela}} cosine similarity of "{{test.text1}}" and "{{test.text2}}" should {{test.operator}} {{test.cosineSimilarityExpectation}}?
     data:
       __stepOrder: 6
   - step: OpenAI model {{test.modela}} {{test.type}} token cost in response to "{{test.prompt}}" should {{test.operator}} {{test.expectation}} tokens
@@ -244,7 +231,7 @@ Detailed description on how to fill in the YAML structure:
  - semanticSimilarity: Provide a numerical value (between 0 and 1) indicating the expected semantic similarity.
  - model: Indicate the AI model to be used for the test (e.g., "gpt-4").
 5. steps:
-- Define the steps to verify the AI's response. Each step should compare the AI's response with the expected result using the provided criteria.
+- Define the steps to verify the AI's response. Each step should compare the AI's response with the expected result using the provided criteria. variable parameters referring to the variables/keys defined under test should be enclosed in {{}} as shown in the sample above.
 - __stepOrder: Maintain the order of the steps.
 6. expression syntax for steps:
 This is a list of the acceptable regex expressions to be used in the YAML steps above. If the user prompt specifies what kind of tests, then you should try and limit all step(s) to those related expresions, e.g. semantic tests should use the expression with "semantically compared with" and not include expressions related to school level or word count, etc.:
@@ -276,4 +263,3 @@ This is a list of the acceptable regex expressions to be used in the YAML steps 
 }
 
 export { CompletionValidation as Step };
-

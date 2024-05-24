@@ -1,8 +1,5 @@
 import { clearScreenDown } from 'readline';
 import { parse } from 'yaml';
-import * as fs from 'fs';
-import * as path from 'path';
-
 
 //   ██╗   ██╗ █████╗  ███╗   ███╗ ██╗            ██████╗  ██████╗       ██╗ ███████╗  ██████╗ ████████╗
 //   ╚██╗ ██╔╝██╔══██╗ ████╗ ████║ ██║           ██╔═══██╗ ██╔══██╗      ██║ ██╔════╝ ██╔════╝ ╚══██╔══╝
@@ -12,7 +9,6 @@ import * as path from 'path';
 //      ╚═╝   ╚═╝  ╚═╝ ╚═╝     ╚═╝ ╚══════╝       ╚═════╝  ╚═════╝   ╚════╝  ╚══════╝  ╚═════╝    ╚═╝   
 //
 
-// There should be eight(8) valid expressions as defined in the README, this is specific usage for the validator
 const validationExpressions = [
   '^OpenAI model (?<modela>(?:[a-zA-Z0-9_-]*gpt-[a-zA-Z0-9_-]*)[^ ]*) and (?<modelb>(?:[a-zA-Z0-9_-]*gpt-[a-zA-Z0-9_-]*)[^ ]*) responses to "(?<prompt>[a-zA-Z0-9_ -\p{P}]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) ?(?<expectation>.+)?',  //ok
 
@@ -24,7 +20,7 @@ const validationExpressions = [
 
   '^OpenAI model (?<modela>(?:[a-zA-Z0-9_-]*gpt-[a-zA-Z0-9_-]*)[^ ]*) word count in a response to "(?<prompt>[a-zA-Z0-9_ -\p{P}]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) (?<expectation>0|[1-9]\\d*)', //ok
 
-  '^OpenAI model (?<modela>(?:[a-zA-Z0-9_-]*gpt-[a-zA-Z0-9_-]*)[^ ]*) cosine similarity of "(?<text1>[a-zA-Z0-9_ -]+)" and "(?<text2>[a-zA-Z0-9_ -]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) ?(?<cosinesimilarity>.+)?', //idk
+  '^OpenAI model (?<modela>(?:[a-zA-Z0-9_-]*gpt-[a-zA-Z0-9_-]*)[^ ]*) cosine similarity of "(?<text1>[a-zA-Z0-9_ -\p{P}]+)" and "(?<text2>[a-zA-Z0-9_ -\p{P}]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) ?(?<cosinesimilarity>.+)?', //idk
 
   '^OpenAI model (?<modela>(?:[a-zA-Z0-9_-]*gpt-[a-zA-Z0-9_-]*)[^ ]*) ?(?<type>.+)? token cost in response to "(?<prompt>[a-zA-Z0-9_ -\p{P}]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) (?<expectation>0|[1-9]\\d*) tokens$', //ok
 
@@ -43,7 +39,7 @@ interface Scenario {
   steps: {
     step: string;
     data: {
-      [key: string]: number
+      __stepOrder: number
     };
   }[];
 };
@@ -59,8 +55,6 @@ type Tokens = { [key: string]: any }; // the type of the tokens object in the YA
 //   ██╔══██║ ██╔══██║ ██║╚██╗██║ ██║  ██║ ██║      ██╔══╝   ██╔══██╗ ╚════██║
 //   ██║  ██║ ██║  ██║ ██║ ╚████║ ██████╔╝ ███████╗ ███████╗ ██║  ██║ ███████║
 //   ╚═╝  ╚═╝ ╚═╝  ╚═╝ ╚═╝  ╚═══╝ ╚═════╝  ╚══════╝ ╚══════╝ ╚═╝  ╚═╝ ╚══════╝
-//
-//   This section contains the event handlers that validate the YAML object
 //
 
 interface Handler {
@@ -106,6 +100,7 @@ class DefaultHandler extends AbstractHandler {
   }
 }
 
+
 /**
  * Validates the format of the YAML object.
  * i.e. It checks that each field exists, each field is the correct type, and if there are any extra fields.
@@ -136,7 +131,7 @@ class ValidateYamlFormatHandler extends AbstractHandler {
         typeof scenario.tokens !== 'object' ||
         typeof scenario.steps !== 'object' ||
         !Array.isArray(scenario.steps)
-      ) { throw new Error('Invalid YAML format... missing required fields'); }
+      ) { throw new Error('Invalid YAML format: Top level fields'); }
       return true
     } catch {
       return false
@@ -149,7 +144,7 @@ class ValidateYamlFormatHandler extends AbstractHandler {
         !scenario.tokens.test ||
         Object.keys(scenario.tokens).length !== 1 ||
         typeof scenario.tokens.test !== 'object'
-      ) {throw new Error('Invalid YAML format')}
+      ) {throw new Error('Invalid YAML format: Test object')}
       return true
     } catch {
       return false
@@ -166,10 +161,8 @@ class ValidateYamlFormatHandler extends AbstractHandler {
           typeof step.step !== 'string' ||
           typeof step.data !== 'object' ||
           Object.keys(step.data).length !== 1 ||
-          !('__stepOrder' in step.data || '__StepOrder' in step.data) ||
-          (typeof step.data.__stepOrder !== 'number' && typeof step.data.__StepOrder !== 'number')
-
-        ) { throw new Error('Invalid YAML format') }
+          typeof step.data.__stepOrder !== 'number'
+        ) { throw new Error('Invalid YAML format: Step fields') }
       })
       return true
     } catch {
@@ -230,7 +223,7 @@ class ValidateYamlVariableHandler extends AbstractHandler {
     return keyValuePairs;
   }
 
-  // Function to replace the placeholders with the actual values
+
   replacePlaceholders(str: string, map: Map<string, any>): string {
     return str.replace(/{{(test\.\w+)}}/g, (_, key) => {
         const param = key.split('.')[1];
@@ -238,7 +231,7 @@ class ValidateYamlVariableHandler extends AbstractHandler {
         if (value === undefined) {
             throw new Error(`Key ${param} not found in the test tokens`);
         }
-        return String(value); // ensure that the returned value is a string
+        return String(value);
     });
   }
 
@@ -253,25 +246,19 @@ class ValidateYamlVariableHandler extends AbstractHandler {
             return true;
         }
     }
-    console.log("Step definition is not correct");
     return false;
   }
 
   checkVariableKeyToStepParam(scenario: Scenario) {
-    const steps = scenario.steps; // array of steps
-    const keyValuePairs = this.extractKeyValuePairs(scenario.tokens.test); // Map of key-value pairs
+    const steps = scenario.steps;
+    const keyValuePairs = this.extractKeyValuePairs(scenario.tokens.test);
     let stepOrder = 0;
     steps.forEach((step) => {
         stepOrder++;
         const stepData = step.data;
         const stepExp = step.step;
-
-        // replace the placeholders with the actual values
         const replacedStepExp = this.replacePlaceholders(stepExp, keyValuePairs);
-        console.log(`Step ${stepOrder}: ${replacedStepExp}`); // log the mapped step string
-        // validate the step expression with the mapped step string
         const isValidExpression = this.validateStringExp(replacedStepExp);
-        console.log("isValidExpression: ", isValidExpression, "\n");
         if (!isValidExpression) {
             throw new Error(`Invalid expression found at step ${stepOrder}\n`);
         }
@@ -280,7 +267,7 @@ class ValidateYamlVariableHandler extends AbstractHandler {
   }
 
   
-  handle(scenario): ResultOutput {
+  handle(scenario: Scenario): ResultOutput {
     try {
       if (this.checkVariableKeyToStepParam(scenario)) {
         return this.nextHandler.handle(scenario);
@@ -310,10 +297,6 @@ class ValidateYamlVariableHandler extends AbstractHandler {
 //   ██║     ██║  ██║ ╚██████╗ ██║  ██║ ██████╔╝ ███████╗
 //   ╚═╝     ╚═╝  ╚═╝  ╚═════╝ ╚═╝  ╚═╝ ╚═════╝  ╚══════╝
 // 
-//   This section starts the event handling process 
-//   i.e. takes the object and passes it thru the event handlers and then returns the result
-//
-
 
 /**
  * Setups the chain of handlers and executes them
@@ -349,49 +332,6 @@ function executeHandlers(yaml: string) {
 
 
 /**
- * This function tests all the YAML files in a specified folder
- * 
- * @param pathString the relative path to the folder containing the YAML files
- */
-// function processYamlFiles(pathString: string = '../../test/scenarios/ambiguity-tests'): void {
-//   const folderPath = path.join(__dirname, pathString);
-//   console.log("folderPath", folderPath);
-
-//   const files = fs.readdirSync(folderPath);
-
-//   const yamlFiles = files.filter(file => file.endsWith('.yml'));
-//   console.log("yaml files (.yml) found:", yamlFiles);
-
-//   yamlFiles.forEach((file, index) => {
-//     const filePath = path.join(folderPath, file);
-//     const fileContent = fs.readFileSync(filePath, 'utf-8');
-//     console.log("typeof file: ", typeof file)
-//     console.log("typeof fileContent: ", typeof fileContent)
-//     try {
-//       var result = executeHandlers(fileContent)
-//       console.log(`file ${index + 1}: ${file}`)
-//       console.log(result)
-//       console.log()
-//     } catch (error) {
-//       console.log(error)
-//     }
-//   });
-// }
-
-
-/** 
- * 
- * Test the program from this file
- * 
- */  
-// try {
-//   processYamlFiles()  // checks all the yaml files in the test folder
-// } catch (error) {
-//   console.log(error)
-// }
-
-
-/**
  * Takes the YAML string and proccesses it through the event handlers
  * 
  * @param yaml a test scenario as a string
@@ -400,14 +340,8 @@ function executeHandlers(yaml: string) {
 export function processStringYaml(yaml: string): ResultOutput {
   try {
     var result = executeHandlers(yaml)
-    console.log("Result: ", result);
     return result
   } catch (error) {
-    console.log(error)
+    console.error(error)
   }
 }
-
-
-
-
-

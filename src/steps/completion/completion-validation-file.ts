@@ -2,11 +2,9 @@
 /* tslint:disable:no-else-after-return */
 
 import * as util from '@run-crank/utilities';
-import * as similarity from 'similarity';
-import * as stringSimilarity from 'string-similarity';
 import * as fs from 'fs';
-import { processStringYaml } from '../../core/yaml-validation';
-import { ResultOutput} from '../../core/yaml-validation'
+import { processStringYaml } from '../../client/mixins/yaml-validation';
+import { ResultOutput } from '../../client/mixins/yaml-validation'
 
 import {
   BaseStep, Field, StepInterface, ExpectedRecord,
@@ -81,12 +79,12 @@ export class CompletionFileValidation extends BaseStep implements StepInterface 
         }
 
         result = processStringYaml(fileContent);  // call the function to process the yaml file (i.e. from the core/yam-validation.ts file)
-        
+
         writeDataToCSV(fileContent, result)
-        
+
         return result.valid ? this.pass(result.message, []) : this.fail(result.message, []);
       }
-      
+
     } catch (e) {
       if (e instanceof util.UnknownOperatorError) {
         return this.error('%s Please provide one of: %s', [e.message, baseOperators.join(', ')]);
@@ -108,19 +106,17 @@ export class CompletionFileValidation extends BaseStep implements StepInterface 
   }
 }
 
-  /** 
-   * @todo where to store this function? in mixins?
-   * 
-   *  Write results into CSV
-   *  Results should be stored in ./src/log/completion-validation_result.csv
-   */
+/** 
+ *  Write results into CSV
+ *  Results should be stored in ./src/log/completion-validation_result.csv
+ */
 async function writeDataToCSV(fileContent: string, result: ResultOutput) {
   const scenarioParsedForCSV = JSON.stringify(fileContent);
   const data = {
     result: result.valid,
     resultMessage: result.message,
-    prompt: "@@placeholder_prompt@@",
-    model: "@@placeholder_model@@",
+    prompt: "Local file input",
+    model: "N/A",
     scenarioContent: scenarioParsedForCSV
   }
 
@@ -133,7 +129,7 @@ async function writeDataToCSV(fileContent: string, result: ResultOutput) {
     path: pathToCSVFile,
     header: [
       { id: 'result', title: 'RESULT' },
-      { id: 'resultMessage', title: 'RESULT_MESSAGE'},
+      { id: 'resultMessage', title: 'RESULT_MESSAGE' },
       { id: 'prompt', title: 'PROMPT' },
       { id: 'model', title: 'MODEL' },
       { id: 'scenarioContent', title: 'SCENARIO_CONTENT' }
