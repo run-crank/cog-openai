@@ -3,6 +3,7 @@
 
 import * as util from '@run-crank/utilities';
 import * as fs from 'fs';
+import * as yaml from 'yaml';
 import { processStringYaml } from '../../client/mixins/yaml-validation';
 import { ResultOutput} from '../../client/mixins/yaml-validation'
 
@@ -84,16 +85,16 @@ export class CompletionValidation extends BaseStep implements StepInterface {
       const response = completion.text_response;
       const returnObj = {
           model,
-          prompt,
-          response,
+          // prompt,
+          // response,
           usage: completion.usage,
           created: completion.created,
-          request: completion.request_payload,
+          // request: completion.request_payload,
       };
       const records = this.createRecords(returnObj, stepData.__stepOrder);
       result = processStringYaml(response)
       writeDataToCSV(response, result, prompt, model)
-      
+
       return result.valid ? this.pass(result.message, [], records) : this.fail(result.message, [], records); 
       
     } catch (e) {
@@ -112,15 +113,15 @@ export class CompletionValidation extends BaseStep implements StepInterface {
     // Base Record
     records.push(this.keyValue('completion', 'Check content reader', completion));
     // Ordered Record
-    records.push(this.keyValue(`completion.${stepOrder}`, `Check content reader from Step ${stepOrder}`, completion));
+    // records.push(this.keyValue(`completion.${stepOrder}`, `Check content reader from Step ${stepOrder}`, completion));
     return records;
   }
 }
 
-  /** 
-   *  Write results into CSV
-   *  Results should be stored in ./src/log/completion-validation_result.csv
-   */
+/** 
+ *  Write results into CSV
+ *  Results should be stored in ./src/log/completion-validation_result.csv
+ */
 async function writeDataToCSV(fileContent: string, result: ResultOutput, prompt: string, model: string) {
   const scenarioParsedForCSV = JSON.stringify(fileContent);
   const data = {
