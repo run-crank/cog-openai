@@ -124,7 +124,8 @@ async function writeDataToCSV(fileContent: string, result: ResultOutput) {
     scenarioContent: scenarioParsedForCSV
   }
 
-  const pathToCSVFile = './src/log/completion-file-validation_result.csv'
+  // const pathToCSVFile = './src/log/completion-file-validation_result.csv'
+  const pathToCSVFile = './src/log/completion-validation_result.csv'
   const appendData = fs.existsSync(pathToCSVFile) ? true : false;
 
   const createCsvWriter = require('csv-writer').createObjectCsvWriter;
