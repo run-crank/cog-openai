@@ -3,6 +3,7 @@
 
 import * as util from '@run-crank/utilities';
 import * as fs from 'fs';
+import * as fsExtra from 'fs-extra';
 import * as yaml from 'yaml';
 import { processStringYaml } from '../../client/mixins/yaml-validation';
 import { ResultOutput} from '../../client/mixins/yaml-validation'
@@ -94,6 +95,9 @@ export class CompletionValidation extends BaseStep implements StepInterface {
       const records = this.createRecords(returnObj, stepData.__stepOrder);
       result = processStringYaml(response)
       writeDataToCSV(response, result, prompt, model)
+      if (result.valid) {
+        writeDataToCrankYAML(response);
+      }
 
       return result.valid ? this.pass(result.message, [], records) : this.fail(result.message, [], records); 
       
@@ -115,6 +119,23 @@ export class CompletionValidation extends BaseStep implements StepInterface {
     // Ordered Record
     // records.push(this.keyValue(`completion.${stepOrder}`, `Check content reader from Step ${stepOrder}`, completion));
     return records;
+  }
+}
+
+// write to crank.yml
+async function writeDataToCrankYAML(fileContent: string) {
+  const pathToCrankYAMLFile = './src/log/completion-validation_result.crank.yml';
+
+  try {
+    
+    const data = yaml.parse(fileContent);
+    const yamlData = yaml.stringify(data);
+
+    await fsExtra.writeFile(pathToCrankYAMLFile, yamlData, 'utf8');
+
+    console.log('Data successfully written to .crank.yml file');
+  } catch (error) {
+    console.error('Error writing data to .crank.yml file:', error);
   }
 }
 
@@ -170,7 +191,7 @@ description: >
   This is a detailed description of the scenario. Explain the context, the objecives, and any specific details needed for the AI to understand the task.
 tokens:
   test:
-    prompt: This is the prompt sent to the AI pertaining to the scenario.
+    prompt: This is the prompt sent to the AI pertaining to the scenario. Should not include quote signs and colons.
     type: input | output
     
     abOperator: The operator used for comparing model A and model B.
@@ -247,19 +268,19 @@ This is a list of the acceptable regex expressions to be used in the YAML steps 
 '^OpenAI model (?<modela>(?:[a-zA-Z0-9_-]*gpt-[a-zA-Z0-9_-]*)[^ ]*) school level of the response to "(?<prompt>[a-zA-Z0-9_ -\p{P}]+)" should (?<operator>be less than|be greater than|be one of|be|not be one of|not be) ?(?<schoollevel>.+)?'
 
 //Check OpenAI GPT semantic similarity of response to provided text from completion (CompletionSemanticSimilarity)
-'^OpenAI model (?<modela>(?:[a-zA-Z0-9_-]*gpt-[a-zA-Z0-9_-]*)[^ ]*) response to "(?<prompt>[a-zA-Z0-9_ -\p{P}]+)" semantically compared with "(?<comparetext>[a-zA-Z0-9_ -\p{P}]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) ?(?<semanticsimilarity>0(\\.\\d+)?)'
+'^OpenAI model (?<modela>(?:[a-zA-Z0-9_-]*gpt-[a-zA-Z0-9_-]*)[^ ]*) response to "(?<prompt>[a-zA-Z0-9_ -\p{P}]+)" semantically compared with "(?<comparetext>[a-zA-Z0-9_ -\p{P}]+)" should (?<operator>be |be less than|be greater than) ?(?<semanticsimilarity>0(\\.\\d+)?)'
 
 //Check OpenAI GPT prompt response word count from completion (CompletionWordCount)
-'^OpenAI model (?<modela>(?:[a-zA-Z0-9_-]*gpt-[a-zA-Z0-9_-]*)[^ ]*) word count in a response to "(?<prompt>[a-zA-Z0-9_ -\p{P}]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) (?<expectation>0|[1-9]\\d*)'
+'^OpenAI model (?<modela>(?:[a-zA-Z0-9_-]*gpt-[a-zA-Z0-9_-]*)[^ ]*) word count in a response to "(?<prompt>[a-zA-Z0-9_ -\p{P}]+)" should (?<operator>be less than|be greater than|be) (?<expectation>0|[1-9]\\d*)'
 
 //Check OpenAI GPT cosine similarity of two texts based on embeddings (EmbeddingsCosineSimilarity)
-'^OpenAI model (?<modela>(?:[a-zA-Z0-9_-]*gpt-[a-zA-Z0-9_-]*)[^ ]*) cosine similarity of "(?<text1>[a-zA-Z0-9_ -]+)" and "(?<text2>[a-zA-Z0-9_ -]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) ?(?<cosinesimilarity>.+)?'
+'^OpenAI model (?<modela>(?:[a-zA-Z0-9_-]*gpt-[a-zA-Z0-9_-]*)[^ ]*) cosine similarity of "(?<text1>[a-zA-Z0-9_ -]+)" and "(?<text2>[a-zA-Z0-9_ -]+)" should (?<operator>be |be less than|be greater than) ?(?<cosinesimilarity>.+)?'
 
 //Check OpenAI GPT prompt token cost given a prompt and model (CompletionTokenCost)
-'^OpenAI model (?<modela>(?:[a-zA-Z0-9_-]*gpt-[a-zA-Z0-9_-]*)[^ ]*) ?(?<type>.+)? token cost in response to "(?<prompt>[a-zA-Z0-9_ -\p{P}]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) (?<expectation>0|[1-9]\\d*) tokens$'
+'^OpenAI model (?<modela>(?:[a-zA-Z0-9_-]*gpt-[a-zA-Z0-9_-]*)[^ ]*) ?(?<type>.+)? token cost in response to "(?<prompt>[a-zA-Z0-9_ -\p{P}]+)" should (?<operator>be |be less than|be greater than) (?<expectation>0|[1-9]\\d*) tokens$'
 
 //Check OpenAI GPT prompt response time from requiest to completion(CompletionResponseTime)
-'^OpenAI model (?<modela>(?:[a-zA-Z0-9_-]*gpt-[a-zA-Z0-9_-]*)[^ ]*) response time in response to "(?<prompt>[a-zA-Z0-9_ -\p{P}]+)" should (?<operator>be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match) (?<expectation>0|[1-9]\\d*) ms$'
+'^OpenAI model (?<modela>(?:[a-zA-Z0-9_-]*gpt-[a-zA-Z0-9_-]*)[^ ]*) response time in response to "(?<prompt>[a-zA-Z0-9_ -\p{P}]+)" should (?<operator>be |be less than|be greater than) (?<expectation>0|[1-9]\\d*) ms$'
 `
 }
 

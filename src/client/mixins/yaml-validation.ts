@@ -258,6 +258,7 @@ class ValidateYamlVariableHandler extends AbstractHandler {
         const stepData = step.data;
         const stepExp = step.step;
         const replacedStepExp = this.replacePlaceholders(stepExp, keyValuePairs);
+        console.log(`Step ${stepOrder}: ${replacedStepExp}`);
         const isValidExpression = this.validateStringExp(replacedStepExp);
         if (!isValidExpression) {
             throw new Error(`Invalid expression found at step ${stepOrder}\n`);
@@ -321,10 +322,11 @@ function executeHandlers(yaml: string) {
     const result = validateYamlFormatHandler.handle(scenario);
     return result
 
-  } catch {
+  } catch (error) {
     const result: ResultOutput = {
       valid: false,
-      message: "Error: YAML Validation failed. Could not parse YAML."
+      // message: "Error: YAML Validation failed. Could not parse YAML."
+      message: error.message
     }
     return result;
   }

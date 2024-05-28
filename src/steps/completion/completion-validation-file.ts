@@ -3,6 +3,8 @@
 
 import * as util from '@run-crank/utilities';
 import * as fs from 'fs';
+import * as fsExtra from 'fs-extra';
+import * as yaml from 'yaml';
 import { processStringYaml } from '../../client/mixins/yaml-validation';
 import { ResultOutput } from '../../client/mixins/yaml-validation'
 
@@ -82,6 +84,10 @@ export class CompletionFileValidation extends BaseStep implements StepInterface 
 
         writeDataToCSV(fileContent, result)
 
+        if (result.valid) {
+          writeDataToCrankYAML(fileContent);
+        }
+
         return result.valid ? this.pass(result.message, []) : this.fail(result.message, []);
       }
 
@@ -103,6 +109,22 @@ export class CompletionFileValidation extends BaseStep implements StepInterface 
     // Ordered Record
     records.push(this.keyValue(`completion.${stepOrder}`, `Check content reader from Step ${stepOrder}`, completion));
     return records;
+  }
+}
+
+// write to crank.yml
+async function writeDataToCrankYAML(fileContent: string) {
+  const pathToCrankYAMLFile = './src/log/completion-validation_result.crank.yml';
+
+  try {
+    
+    const data = yaml.parse(fileContent);
+    const yamlData = yaml.stringify(data);
+    await fsExtra.writeFile(pathToCrankYAMLFile, yamlData, 'utf8');
+
+    console.log('Data successfully written to .crank.yml file');
+  } catch (error) {
+    console.error('Error writing data to .crank.yml file:', error);
   }
 }
 
