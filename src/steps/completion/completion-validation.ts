@@ -191,13 +191,14 @@ description: >
   This is a detailed description of the scenario. Explain the context, the objecives, and any specific details needed for the AI to understand the task.
 tokens:
   test:
-    prompt: This is the prompt sent to the AI pertaining to the scenario. Should not include quote signs and colons.
+    prompt: This is the prompt sent to the AI pertaining to the scenario. It should not insclude double quotes and colons.
     type: input | output
     
     abOperator: The operator used for comparing model A and model B.
     responseOperator: The operator used to check for a valid response.
     equalsOperator: The operator used for comparison.
     tokenCostOperator: The operator uesd for token cost.
+    semanticSimilarityOperator: The operator used for semantic similarity.
     schoollevelOperator: The operator used for school level.
     
     textExpectation: The expected output. Should not include quote signs.
@@ -247,7 +248,7 @@ Detailed description on how to fill in the YAML structure:
 3. description: Write a detailed description explaining the scenario, including the context, objectives, and any specific details that the AI needs to understand.
 4. tokens:
 - test:
- - prompt: Write the prompt that will be sent to the AI.
+ - prompt: Write the prompt that will be sent to the AI. It should not insclude double quotes and colons.
  - equalsOperator: Define the operator for comparison (be set|not be set|be less than|be greater than|be one of|be|contain|not be one of|not be|not contain|match|not match)
  - equalsExpectation: State the expected result for comparison.
  - semanticSimilarity: Provide a numerical value (between 0 and 1) indicating the expected semantic similarity.
