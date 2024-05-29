@@ -40,6 +40,7 @@
   "devDependencies": {
     "@types/chai": "^4.1.7",
     "@types/chai-as-promised": "^7.1.7",
+    "@types/fs-extra": "^11.0.4",
     "@types/google-protobuf": "^3.2.7",
     "@types/mocha": "^5.2.7",
     "@types/needle": "^2.0.4",
@@ -54,11 +55,11 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "grpc_tools_node_protoc_ts": "^5.3.0",
     "grpc-tools": "^1.9.0",
-    "mocha": "^7.2.0",
+    "mocha": "^10.4.0",
     "nyc": "^14.1.1",
     "sinon-chai": "^3.3.0",
     "ts-sinon": "^1.0.17",
-    "typescript": "^5.3.2"
+    "typescript": "^5.4.5"
   },
   "dependencies": {
     "@azure/storage-blob": "^12.17.0",
@@ -68,13 +69,16 @@
     "@typescript-eslint/eslint-plugin": "^6.12.0",
     "chai-as-promised": "^7.1.1",
     "compute-cosine-similarity": "^1.1.0",
+    "csv-writer": "^1.6.0",
     "dotenv": "^16.4.4",
+    "fs-extra": "^11.2.0",
     "google-protobuf": "^3.8.0",
     "lodash": "^4.17.21",
     "needle": "^2.5.0",
     "openai": "^4.12.4",
     "similarity": "^1.2.1",
     "string-similarity": "^4.0.4",
-    "ts-node": "^8.3.0"
+    "ts-node": "^8.10.2",
+    "yaml": "^2.4.2"
   }
 }

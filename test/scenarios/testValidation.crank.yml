@@ -1,0 +1,14 @@
+scenario: Test the response yaml
+description: >
+  Test for ability to generate a valid scenario yaml
+
+tokens:
+  test:
+    prompt: Customer service response word count
+    model: gpt-4o
+    
+
+steps:
+- step: OpenAI model {{test.model}} format validation in response to "{{test.prompt}}" should be valid.
+  data:
+    __stepOrder: 1
